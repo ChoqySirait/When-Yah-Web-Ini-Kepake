@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==========================================================
-  // TRANSISI PORTAL: GANTI MUSIK OTOMATIS KE HAPPY BIRTHDAY
+  // TRANSISI PORTAL MENUJU KUE (DENGAN GANTI LAGU ULANG TAHUN)
   // ==========================================================
   btnEnterPortal.addEventListener('click', () => {
     portalTriggerContainer.classList.add('hidden');
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chapterTag.textContent = "Interlude";
     chapterTitle.textContent = "Crossing The Stargate";
 
-    // Ganti musik ke Happy Birthday (Acoustic) secara mulus
+    // Ganti ke lagu selamat ulang tahun
     AudioManager.switchTrack(
       CONFIG.birthdayAudioUrl,
       CONFIG.fallbackBirthdayAudioUrl,
@@ -247,12 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Tiup lilin memicu semburan air mancur kembang api 3D
     World3D.extinguishCandle();
     cakeWishBox.style.display = 'none';
     btnToLetter.classList.remove('hidden');
 
-    // Rentetan kembang api bertingkat di layar
     confetti({
       particleCount: 180,
       spread: 100,
@@ -302,9 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
     signatureEl.textContent = '';
     dateEl.textContent = '';
 
-    // Step 1: Ketik Salutation
     typeString(salutationEl, CONFIG.letter.salutation, 40, () => {
-      // Step 2: Ketik Paragraf satu demi satu
       let pIndex = 0;
       function nextParagraph() {
         if (pIndex < CONFIG.letter.body.length) {
@@ -312,12 +308,10 @@ document.addEventListener('DOMContentLoaded', () => {
           bodyEl.appendChild(p);
           typeString(p, CONFIG.letter.body[pIndex], 30, () => {
             pIndex++;
-            // Scroll otomatis ke bawah agar kalimat terbaru selalu terlihat
             letterPanel.scrollTo({ top: letterPanel.scrollHeight, behavior: 'smooth' });
             setTimeout(nextParagraph, 200);
           });
         } else {
-          // Step 3: Ketik Signature & Tanggal
           typeString(signatureEl, CONFIG.letter.signature, 40, () => {
             dateEl.textContent = CONFIG.letter.date;
             letterPanel.scrollTo({ top: letterPanel.scrollHeight, behavior: 'smooth' });

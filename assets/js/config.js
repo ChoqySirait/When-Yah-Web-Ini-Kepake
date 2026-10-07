@@ -5,7 +5,7 @@ const CONFIG = {
   recipientName: "Bidadari Malam",
   senderName: "Seseorang yang Selalu Mengagumimu",
 
-  // Email penerima harapan (wish)
+  // Email penerima wish/harapan
   receiverEmail: "email_anda_disini@gmail.com",
 
   // Tanggal kelahiran untuk kuis (angka 1 - 31)
@@ -16,8 +16,8 @@ const CONFIG = {
   fallbackAudioUrl: "https://cdn.pixabay.com/download/audio/2022/05/16/audio_db6591201e.mp3?filename=romantic-ambient-111427.mp3",
   audioTitle: "Until I Found You (Acoustic Ambient)",
 
-  // TRACK 2: Lagu Selamat Ulang Tahun (Aktif saat masuk portal)
-  birthdayAudioUrl: "assets/audio/birthday.mp3",
+  // TRACK 2: Lagu Selamat Ulang Tahun (Sesuai nama file di folder Anda: happybirthday.mp3)
+  birthdayAudioUrl: "assets/audio/happybirthday.mp3",
   fallbackBirthdayAudioUrl: "https://cdn.pixabay.com/download/audio/2022/10/14/audio_9939f7921c.mp3?filename=happy-birthday-to-you-piano-123472.mp3",
   birthdayAudioTitle: "Happy Birthday to You (Acoustic Piano)",
 
