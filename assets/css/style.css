@@ -7,7 +7,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: #060405;
+  background-color: #050304;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
@@ -25,26 +25,30 @@ html, body {
 }
 
 /* ============================================================ */
-/* SUSPENSE RUMBLE ANIMATION                                    */
+/* SUSPENSE RUMBLE ANIMATION (GETAR LAYAR PROGRESIF)            */
 /* ============================================================ */
 .holding-seal {
   box-shadow: 0 0 35px 12px rgba(164, 22, 26, 0.7) !important;
   border-color: #d4af37 !important;
 }
 
-.rumble-subtle {
-  animation: rumbleAnim 0.15s infinite;
+.rumble-level-1 {
+  animation: rumbleAnim 0.16s infinite;
 }
 
-.rumble-intense {
-  animation: rumbleAnim 0.06s infinite;
+.rumble-level-2 {
+  animation: rumbleAnim 0.10s infinite;
+}
+
+.rumble-level-3 {
+  animation: rumbleAnim 0.05s infinite;
 }
 
 @keyframes rumbleAnim {
   0% { transform: translate(1px, 1px) rotate(0deg); }
-  25% { transform: translate(-1px, -1px) rotate(-0.4deg); }
-  50% { transform: translate(-2px, 1px) rotate(0.4deg); }
-  75% { transform: translate(2px, -1px) rotate(0deg); }
+  25% { transform: translate(-1.5px, -1px) rotate(-0.4deg); }
+  50% { transform: translate(-2px, 1.5px) rotate(0.4deg); }
+  75% { transform: translate(2px, -1.5px) rotate(0deg); }
   100% { transform: translate(1px, 2px) rotate(0.4deg); }
 }
 

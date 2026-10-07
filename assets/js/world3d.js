@@ -1,5 +1,5 @@
 // ============================================================
-// MASTER 3D ENGINE (CURVED SHOWCASE & ROBUST POINTER PICKING)
+// MASTER 3D ENGINE (SPLIT 3D SHOWCASE & 3D VORTEX PORTAL)
 // ============================================================
 const World3D = {
   canvas: document.getElementById('webgl-canvas'),
@@ -7,33 +7,36 @@ const World3D = {
   scene: null,
   camera: null,
 
-  // Groups
+  // 3D Groups
   embersGroup: new THREE.Group(),
   crystalGroup: new THREE.Group(),
   galleryGroup: new THREE.Group(),
+  portalGroup: new THREE.Group(),
   cakeGroup: new THREE.Group(),
 
   // Komponen
   candleFlameMesh: null,
   candleLight: null,
+  portalVortexMesh: null,
+  portalLight: null,
   cardsMeshes: [],
 
-  // State Galeri & Interaksi
-  activeStage: 'crystal',
+  // State
+  activeStage: 'crystal', // 'crystal' | 'gallery' | 'portal' | 'cake' | 'letter'
   currentCardIndex: 0,
   targetGalleryAngle: 0,
   currentGalleryAngle: 0,
+  isSplitActive: false,
   isDragging: false,
   pointerDownPos: { x: 0, y: 0 },
   previousPointerPos: { x: 0, y: 0 },
-  isModalOpen: false,
 
   raycaster: new THREE.Raycaster(),
   mouse: new THREE.Vector2(),
-  onCardClickCallback: null,
+  onCardFocusCallback: null,
 
-  init(onCardClick) {
-    this.onCardClickCallback = onCardClick;
+  init(onCardFocus) {
+    this.onCardFocusCallback = onCardFocus;
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
@@ -47,13 +50,13 @@ const World3D = {
     this.renderer.toneMappingExposure = 1.35;
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(0x060405, 0.04);
+    this.scene.fog = new THREE.FogExp2(0x050304, 0.04);
 
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
     this.camera.position.set(0, 0, 7.5);
 
     // Pencahayaan Sinematik
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
     this.scene.add(ambientLight);
 
     const goldKeyLight = new THREE.DirectionalLight(0xd4af37, 1.8);
@@ -64,27 +67,31 @@ const World3D = {
     wineRimLight.position.set(-6, -4, -4);
     this.scene.add(wineRimLight);
 
-    // Bangun Aset 3D
+    // Bangun Seluruh Aset Prosedural 3D
     this.buildEmbers();
     this.buildRubyHeartCrystal();
     this.buildCurvedGallery();
+    this.buildCosmicPortal();
     this.buildTieredCake();
 
     this.scene.add(this.embersGroup);
     this.scene.add(this.crystalGroup);
     this.scene.add(this.galleryGroup);
+    this.scene.add(this.portalGroup);
     this.scene.add(this.cakeGroup);
 
+    // Default visibility
     this.galleryGroup.visible = false;
+    this.portalGroup.visible = false;
     this.cakeGroup.visible = false;
 
     this.setupEvents();
     this.animate();
   },
 
-  // 1. DEBU EMAS & MERAH MAWAR
+  // 1. DEBU EMAS & MERAH GELAP
   buildEmbers() {
-    const count = 500;
+    const count = 550;
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
@@ -118,7 +125,7 @@ const World3D = {
     this.embersGroup.add(points);
   },
 
-  // 2. PERMATA RUBY MERAH DELIMA
+  // 2. PERMATA RUBY MERAH DELIMA (PROLOG)
   buildRubyHeartCrystal() {
     const gemGeom = new THREE.IcosahedronGeometry(1.3, 0);
     const gemMat = new THREE.MeshStandardMaterial({
@@ -148,13 +155,12 @@ const World3D = {
   buildCurvedGallery() {
     const textureLoader = new THREE.TextureLoader();
     const count = CONFIG.memories.length;
-    const radius = 4.8; // Radius kelengkungan lingkaran kartu
+    const radius = 4.8;
 
     CONFIG.memories.forEach((item, index) => {
       const cardGroup = new THREE.Group();
 
-      // Bingkai Kaca Obsidian
-      const slabGeom = new THREE.BoxGeometry(2.3, 3.1, 0.08);
+      const slabGeom = new THREE.BoxGeometry(2.2, 3.0, 0.08);
       const slabMat = new THREE.MeshStandardMaterial({
         color: 0x14080d,
         metalness: 0.85,
@@ -165,21 +171,18 @@ const World3D = {
       const slab = new THREE.Mesh(slabGeom, slabMat);
       cardGroup.add(slab);
 
-      // Permukaan Foto
-      const planeGeom = new THREE.PlaneGeometry(2.1, 2.8);
+      const planeGeom = new THREE.PlaneGeometry(2.0, 2.7);
       const texture = textureLoader.load(item.image);
       const planeMat = new THREE.MeshBasicMaterial({ map: texture });
       const plane = new THREE.Mesh(planeGeom, planeMat);
       plane.position.z = 0.045;
       cardGroup.add(plane);
 
-      // Garis Batas Emas
       const borderGeom = new THREE.EdgesGeometry(slabGeom);
-      const borderMat = new THREE.LineBasicMaterial({ color: 0xd4af37, opacity: 0.6, transparent: true });
+      const borderMat = new THREE.LineBasicMaterial({ color: 0xd4af37, opacity: 0.55, transparent: true });
       const borderLines = new THREE.LineSegments(borderGeom, borderMat);
       cardGroup.add(borderLines);
 
-      // Kalkulasi Posisi Melengkung Melingkar Menghadap Kamera
       const angle = (index / count) * Math.PI * 2;
       cardGroup.position.set(
         Math.sin(angle) * radius,
@@ -188,7 +191,13 @@ const World3D = {
       );
       cardGroup.rotation.y = angle;
 
-      cardGroup.userData = { index: index, data: item, baseAngle: angle };
+      cardGroup.userData = {
+        index: index,
+        data: item,
+        originalPos: cardGroup.position.clone(),
+        originalRot: cardGroup.rotation.clone()
+      };
+
       this.cardsMeshes.push(cardGroup);
       this.galleryGroup.add(cardGroup);
     });
@@ -196,7 +205,40 @@ const World3D = {
     this.updateCardFocus();
   },
 
-  // 4. KUE BELUDRU GELAP 3D
+  // 4. PORTAL KOSMIK 3D (VORTEX STARGATE MENUJU KUE)
+  buildCosmicPortal() {
+    this.portalGroup.position.set(0, 0, 0);
+
+    // Cincin Luar Emas
+    const outerRingGeom = new THREE.TorusGeometry(1.9, 0.06, 16, 100);
+    const ringMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.95, roughness: 0.1 });
+    const outerRing = new THREE.Mesh(outerRingGeom, ringMat);
+    this.portalGroup.add(outerRing);
+
+    // Cincin Dalam Crimson
+    const innerRingGeom = new THREE.TorusGeometry(1.65, 0.04, 16, 100);
+    const innerMat = new THREE.MeshStandardMaterial({ color: 0xa4161a, metalness: 0.9, roughness: 0.2 });
+    const innerRing = new THREE.Mesh(innerRingGeom, innerMat);
+    innerRing.name = "portalInnerRing";
+    this.portalGroup.add(innerRing);
+
+    // Vortex Cahaya di Tengah
+    const vortexGeom = new THREE.CircleGeometry(1.6, 48);
+    const vortexMat = new THREE.MeshBasicMaterial({
+      color: 0x660708,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.55
+    });
+    this.portalVortexMesh = new THREE.Mesh(vortexGeom, vortexMat);
+    this.portalGroup.add(this.portalVortexMesh);
+
+    // Cahaya Pendar Pusat Portal
+    this.portalLight = new THREE.PointLight(0xd4af37, 2.5, 8);
+    this.portalGroup.add(this.portalLight);
+  },
+
+  // 5. KUE TINGKAT BELUDRU 3D
   buildTieredCake() {
     this.cakeGroup.position.set(0, -0.6, 0);
 
@@ -244,13 +286,76 @@ const World3D = {
     this.cakeGroup.add(this.candleLight);
   },
 
-  // NAVIGASI KARTU
+  // ==========================================================
+  // LOGIKA SPLIT 3D: KARTU DI KIRI & TEKS DI KANAN
+  // ==========================================================
+  activateSplitView(cardIndex) {
+    this.isSplitActive = true;
+    this.currentCardIndex = cardIndex;
+    const isMobile = window.innerWidth < 640;
+
+    this.cardsMeshes.forEach((card, idx) => {
+      if (idx === cardIndex) {
+        // Pindahkan kartu ke posisi KIRI dengan kemiringan 3D elegan
+        gsap.to(card.position, {
+          x: isMobile ? 0 : -1.8,
+          y: isMobile ? 1.3 : 0,
+          z: 2.2,
+          duration: 0.8,
+          ease: "power3.out"
+        });
+        gsap.to(card.rotation, {
+          x: 0,
+          y: isMobile ? 0 : 0.32, // Kemiringan 3D menghadap kanan
+          z: 0,
+          duration: 0.8,
+          ease: "power3.out"
+        });
+        gsap.to(card.scale, { x: 1.05, y: 1.05, z: 1.05, duration: 0.5 });
+      } else {
+        // Redupkan dan sembunyikan kartu lainnya
+        gsap.to(card.scale, { x: 0.001, y: 0.001, z: 0.001, duration: 0.4 });
+      }
+    });
+
+    if (this.onCardFocusCallback) {
+      this.onCardFocusCallback(CONFIG.memories[cardIndex]);
+    }
+  },
+
+  deactivateSplitView() {
+    this.isSplitActive = false;
+
+    this.cardsMeshes.forEach((card) => {
+      // Kembalikan posisi awal kartu dalam lingkaran carousel
+      gsap.to(card.position, {
+        x: card.userData.originalPos.x,
+        y: card.userData.originalPos.y,
+        z: card.userData.originalPos.z,
+        duration: 0.8,
+        ease: "power3.out"
+      });
+      gsap.to(card.rotation, {
+        x: card.userData.originalRot.x,
+        y: card.userData.originalRot.y,
+        z: card.userData.originalRot.z,
+        duration: 0.8,
+        ease: "power3.out"
+      });
+    });
+
+    this.updateCardFocus();
+  },
+
+  // NAVIGASI KARTU NORMAL
   nextCard() {
+    if (this.isSplitActive) return;
     this.currentCardIndex = (this.currentCardIndex + 1) % CONFIG.memories.length;
     this.rotateToCurrentCard();
   },
 
   prevCard() {
+    if (this.isSplitActive) return;
     this.currentCardIndex = (this.currentCardIndex - 1 + CONFIG.memories.length) % CONFIG.memories.length;
     this.rotateToCurrentCard();
   },
@@ -265,9 +370,9 @@ const World3D = {
     this.cardsMeshes.forEach((card, idx) => {
       const isFocused = idx === this.currentCardIndex;
       gsap.to(card.scale, {
-        x: isFocused ? 1.08 : 0.9,
-        y: isFocused ? 1.08 : 0.9,
-        z: isFocused ? 1.08 : 0.9,
+        x: isFocused ? 1.08 : 0.88,
+        y: isFocused ? 1.08 : 0.88,
+        z: isFocused ? 1.08 : 0.88,
         duration: 0.4
       });
     });
@@ -288,13 +393,40 @@ const World3D = {
     }});
   },
 
+  // TRANSISI PORTAL: MUNCULKAN PORTAL & WARP CAMERA MENEMBUS RUANG
+  transitionToPortal(onPortalPassed) {
+    this.activeStage = 'portal';
+    if (this.isSplitActive) this.deactivateSplitView();
+
+    // Sembunyikan galeri dengan cepat
+    gsap.to(this.galleryGroup.position, { y: -10, duration: 0.8, onComplete: () => {
+      this.galleryGroup.visible = false;
+    }});
+
+    // Munculkan portal 3D berputar di tengah layar
+    this.portalGroup.visible = true;
+    gsap.from(this.portalGroup.scale, { x: 0.01, y: 0.01, z: 0.01, duration: 1.2, ease: "back.out(1.7)" });
+
+    // Efek Warp: Kamera melesat menembus pusat portal setelah 1.5 detik
+    setTimeout(() => {
+      gsap.to(this.camera.position, {
+        z: 0,
+        duration: 1.4,
+        ease: "power3.in",
+        onComplete: () => {
+          this.portalGroup.visible = false;
+          this.camera.position.set(0, 0, 7.5); // Reset kamera ke posisi depan kue
+          this.transitionToCake();
+          if (onPortalPassed) onPortalPassed();
+        }
+      });
+    }, 1400);
+  },
+
   transitionToCake() {
     this.activeStage = 'cake';
-    gsap.to(this.galleryGroup.position, { y: 6, opacity: 0, duration: 1.0, ease: "power2.in", onComplete: () => {
-      this.galleryGroup.visible = false;
-      this.cakeGroup.visible = true;
-      gsap.from(this.cakeGroup.scale, { x: 0.1, y: 0.1, z: 0.1, duration: 1.4, ease: "back.out(1.5)" });
-    }});
+    this.cakeGroup.visible = true;
+    gsap.from(this.cakeGroup.scale, { x: 0.01, y: 0.01, z: 0.01, duration: 1.4, ease: "back.out(1.5)" });
   },
 
   igniteCandle() {
@@ -312,14 +444,12 @@ const World3D = {
 
   transitionToLetter() {
     this.activeStage = 'letter';
-    // Sembunyikan kue sepenuhnya agar tidak tembus ke bawah surat
     gsap.to(this.cakeGroup.position, { y: -20, duration: 1.0, onComplete: () => {
       this.cakeGroup.visible = false;
     }});
     gsap.to(this.camera.position, { z: 8, duration: 2, ease: "power2.out" });
   },
 
-  // DETEKSI SENTUHAN / KLIK DENGAN TOLERANSI AMBANG BATAS
   setupEvents() {
     window.addEventListener('resize', () => {
       this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -336,7 +466,7 @@ const World3D = {
     };
 
     const onPointerMove = (e) => {
-      if (!this.isDragging || this.isModalOpen) return;
+      if (!this.isDragging || this.isSplitActive) return;
       const x = e.touches ? e.touches[0].clientX : e.clientX;
       const y = e.touches ? e.touches[0].clientY : e.clientY;
       const deltaX = x - this.previousPointerPos.x;
@@ -357,9 +487,8 @@ const World3D = {
       const x = (e.changedTouches ? e.changedTouches[0].clientX : e.clientX) || this.previousPointerPos.x;
       const y = (e.changedTouches ? e.changedTouches[0].clientY : e.clientY) || this.previousPointerPos.y;
 
-      // Ambang batas: Jika pergerakan kurang dari 12 piksel, anggap sebagai KETUKAN (TAP/CLICK)
       const dist = Math.hypot(x - this.pointerDownPos.x, y - this.pointerDownPos.y);
-      if (dist < 12 && this.activeStage === 'gallery' && !this.isModalOpen) {
+      if (dist < 10 && this.activeStage === 'gallery' && !this.isSplitActive) {
         this.handleRaycastPick(x, y);
       }
     };
@@ -387,11 +516,7 @@ const World3D = {
         root = root.parent;
       }
       if (root.userData && root.userData.index !== undefined) {
-        this.currentCardIndex = root.userData.index;
-        this.rotateToCurrentCard();
-        if (this.onCardClickCallback) {
-          this.onCardClickCallback(root.userData.data);
-        }
+        this.activateSplitView(root.userData.index);
       }
     }
   },
@@ -414,14 +539,20 @@ const World3D = {
       }
     }
 
-    // Pergerakan sudut galeri yang halus (Smooth Lerping)
-    if (this.activeStage === 'gallery') {
+    if (this.activeStage === 'gallery' && !this.isSplitActive) {
       this.currentGalleryAngle += (this.targetGalleryAngle - this.currentGalleryAngle) * 0.08;
       this.galleryGroup.rotation.y = this.currentGalleryAngle;
 
       this.cardsMeshes.forEach((card, idx) => {
         card.position.y = Math.sin(time * 2 + idx) * 0.06;
       });
+    }
+
+    // Putaran Cepat & Bergelombang Portal 3D
+    if (this.activeStage === 'portal' || this.portalGroup.visible) {
+      const innerRing = this.portalGroup.getObjectByName('portalInnerRing');
+      if (innerRing) innerRing.rotation.z += 0.04;
+      if (this.portalVortexMesh) this.portalVortexMesh.rotation.z -= 0.06;
     }
 
     if (this.candleFlameMesh && this.candleFlameMesh.visible) {

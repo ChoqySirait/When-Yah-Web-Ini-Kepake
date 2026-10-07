@@ -4,15 +4,22 @@
 document.addEventListener('DOMContentLoaded', () => {
   AudioManager.init();
 
+  // Inisialisasi 3D Engine dengan Callback Split View
   World3D.init((memoryData) => {
-    openPoemModal(memoryData);
+    displaySplitPoem(memoryData);
   });
 
   const chapterTag = document.getElementById('chapter-tag');
   const chapterTitle = document.getElementById('chapter-title');
 
   const uiSeal = document.getElementById('ui-seal');
-  const uiGalleryHint = document.getElementById('ui-gallery-hint');
+  const uiGalleryControls = document.getElementById('ui-gallery-controls');
+  const galleryNormalHint = document.getElementById('gallery-normal-hint');
+  const gallerySplitPanel = document.getElementById('gallery-split-panel');
+  const splitPoemTitle = document.getElementById('split-poem-title');
+  const splitPoemText = document.getElementById('split-poem-text');
+  const btnCloseSplit = document.getElementById('btn-close-split');
+
   const uiCakePanel = document.getElementById('ui-cake-panel');
   const uiLetterPanel = document.getElementById('ui-letter-panel');
 
@@ -22,7 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const sealLabel = document.getElementById('seal-label');
   const sealTease = document.getElementById('seal-tease');
 
-  const btnToCake = document.getElementById('btn-to-cake');
+  const btnPrevCard = document.getElementById('btn-prev-card');
+  const btnNextCard = document.getElementById('btn-next-card');
+  const btnOpenCard = document.getElementById('btn-open-card');
+  const btnActivatePortal = document.getElementById('btn-activate-portal');
+
   const cakeGate = document.getElementById('cake-gate');
   const cakeWishBox = document.getElementById('cake-wish-box');
   const inputDate = document.getElementById('input-date');
@@ -31,32 +42,43 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnBlowCandle = document.getElementById('btn-blow-candle');
   const btnToLetter = document.getElementById('btn-to-letter');
 
-  const poemOverlay = document.getElementById('poem-overlay');
-  const poemModalBox = document.getElementById('poem-modal-box');
-  const poemTitle = document.getElementById('poem-card-title');
-  const poemTypewriter = document.getElementById('poem-typewriter');
-  const btnClosePoem = document.getElementById('btn-close-poem');
-
-  // BABAK 0: TAHAN TOMBOL
+  // ==========================================================
+  // BABAK 0: TAHAN TOMBOL DENGAN TEKS PROGRESIF DINAMIS
+  // ==========================================================
   const totalDuration = 7000;
   const circumference = 402;
   let holdStartTime = null;
   let holdInterval = null;
   let sealDone = false;
 
-  const teaseMessages = [
-    "Duarr! Eh belum... jangan dilepas dulu!",
+  const cancelTeases = [
+    "Duarr! Eh belum... jangan dilepas dulu dong!",
     "Duarr! Dikit lagi padahal... tahan terus layarnya!",
-    "Duarr! Kok dilepas? Coba ulangi dari awal ya!",
-    "Duarr! Kurang sabar nih, coba tahan lebih lama!"
+    "Duarr! Kok panik terus dilepas? Ulangi dari awal yaa 😜",
+    "Duarr! Hayo tangannya gemeteran ya? Coba lagi!"
   ];
+
+  function updateHoldMessage(percent) {
+    if (percent < 15) {
+      sealTease.textContent = "Mulai terhubung... tetap tahan jarimu di situ ya.";
+    } else if (percent < 30) {
+      sealTease.textContent = "Energinya mulai bereaksi... jangan goyang!";
+    } else if (percent < 50) {
+      sealTease.textContent = "Detak jantungmu kerasa sampai sini... tahan terus!";
+    } else if (percent < 70) {
+      sealTease.textContent = "PANIK GAK?! Sedikit lagi pecah, awas kelepas!";
+    } else if (percent < 88) {
+      sealTease.textContent = "TAHAN NAPAS! Cahayanya udah gak stabil nih!!";
+    } else if (percent < 99) {
+      sealTease.textContent = "1 DETIK LAGI! JANGAN DILEPAS WOYY!!";
+    }
+  }
 
   function startHold(e) {
     if (sealDone) return;
     if (e.cancelable) e.preventDefault();
 
     holdStartTime = Date.now();
-    sealTease.textContent = "Tetap tahan... jangan sampai lepas...";
     sealTrigger.classList.add('holding-seal');
 
     holdInterval = setInterval(() => {
@@ -68,15 +90,21 @@ document.addEventListener('DOMContentLoaded', () => {
       const offset = circumference - (progress * circumference);
       sealProgress.style.strokeDashoffset = offset;
 
+      // Update Teks Dinamis per Persen/Detik
+      updateHoldMessage(percent);
+
+      // Getar Layar Bertingkat
       if (percent >= 70) {
-        document.body.classList.remove('rumble-subtle');
-        document.body.classList.add('rumble-intense');
+        document.body.className = "bg-[#050304] text-[#f5f3f4] min-h-screen overflow-hidden select-none rumble-level-3";
         sealLabel.textContent = "TAHAN!!";
-      } else if (percent >= 40) {
-        document.body.classList.add('rumble-subtle');
-        sealLabel.textContent = "JANGAN LEPAS";
+      } else if (percent >= 45) {
+        document.body.className = "bg-[#050304] text-[#f5f3f4] min-h-screen overflow-hidden select-none rumble-level-2";
+        sealLabel.textContent = "AWAS!!";
+      } else if (percent >= 25) {
+        document.body.className = "bg-[#050304] text-[#f5f3f4] min-h-screen overflow-hidden select-none rumble-level-1";
       }
 
+      // Mempercepat rotasi ruby 3D
       const gem = World3D.crystalGroup.getObjectByName('rubyGem');
       if (gem) gem.rotation.y += 0.08;
 
@@ -91,31 +119,31 @@ document.addEventListener('DOMContentLoaded', () => {
     clearInterval(holdInterval);
     holdInterval = null;
 
-    document.body.classList.remove('rumble-subtle', 'rumble-intense');
+    document.body.className = "bg-[#050304] text-[#f5f3f4] min-h-screen overflow-hidden select-none";
     sealTrigger.classList.remove('holding-seal');
     sealProgress.style.strokeDashoffset = circumference;
     sealPercent.textContent = "0%";
     sealLabel.textContent = "TEKAN";
 
-    const randomTease = teaseMessages[Math.floor(Math.random() * teaseMessages.length)];
+    const randomTease = cancelTeases[Math.floor(Math.random() * cancelTeases.length)];
     sealTease.textContent = randomTease;
   }
 
   function finishHold() {
     sealDone = true;
     clearInterval(holdInterval);
-    document.body.classList.remove('rumble-subtle', 'rumble-intense');
+    document.body.className = "bg-[#050304] text-[#f5f3f4] min-h-screen overflow-hidden select-none";
 
-    sealLabel.textContent = "TERBUKA";
-    sealTease.textContent = "Rahasia telah dibuka...";
+    sealLabel.textContent = "DUARR!!";
+    sealTease.textContent = "Segel berhasil dipecahkan ✨";
 
     AudioManager.play();
     World3D.transitionToGallery();
 
     setTimeout(() => {
       uiSeal.classList.add('hidden');
-      uiGalleryHint.classList.remove('hidden');
-      uiGalleryHint.classList.add('flex');
+      uiGalleryControls.classList.remove('hidden');
+      uiGalleryControls.classList.add('flex');
       chapterTag.textContent = "Chapter I";
       chapterTitle.textContent = "Unspoken Beauty";
     }, 1100);
@@ -126,67 +154,64 @@ document.addEventListener('DOMContentLoaded', () => {
   sealTrigger.addEventListener('touchstart', startHold, { passive: false });
   window.addEventListener('touchend', cancelHold);
 
-  // BABAK 1: SYAIR MODAL TYPEWRITER & CLOSE HANDLER
-  let typeInterval = null;
+  // ==========================================================
+  // BABAK 1: GALERI 3D, SPLIT VIEW & TYPEWRITER DI KANAN
+  // ==========================================================
+  btnNextCard.addEventListener('click', () => World3D.nextCard());
+  btnPrevCard.addEventListener('click', () => World3D.prevCard());
 
-  function openPoemModal(data) {
-    World3D.isModalOpen = true;
-    poemTitle.textContent = data.title;
-    poemOverlay.classList.remove('hidden');
-    poemOverlay.classList.add('flex');
+  btnOpenCard.addEventListener('click', () => {
+    World3D.activateSplitView(World3D.currentCardIndex);
+  });
 
-    clearInterval(typeInterval);
-    poemTypewriter.textContent = '';
+  let poemTypeInterval = null;
+  function displaySplitPoem(data) {
+    galleryNormalHint.classList.add('hidden');
+    gallerySplitPanel.classList.remove('hidden');
+    gallerySplitPanel.classList.add('flex');
+
+    splitPoemTitle.textContent = data.title;
+    clearInterval(poemTypeInterval);
+    splitPoemText.textContent = '';
     let i = 0;
-    typeInterval = setInterval(() => {
+    poemTypeInterval = setInterval(() => {
       if (i < data.poem.length) {
-        poemTypewriter.textContent += data.poem.charAt(i);
+        splitPoemText.textContent += data.poem.charAt(i);
         i++;
       } else {
-        clearInterval(typeInterval);
+        clearInterval(poemTypeInterval);
       }
     }, 45);
   }
 
-  function closePoemModal() {
-    poemOverlay.classList.add('hidden');
-    poemOverlay.classList.remove('flex');
-    clearInterval(typeInterval);
-    poemTypewriter.textContent = '';
-    setTimeout(() => {
-      World3D.isModalOpen = false;
-    }, 150);
-  }
-
-  // Klik tombol 'X'
-  btnClosePoem.addEventListener('click', (e) => {
-    e.stopPropagation();
-    closePoemModal();
+  btnCloseSplit.addEventListener('click', () => {
+    clearInterval(poemTypeInterval);
+    gallerySplitPanel.classList.add('hidden');
+    gallerySplitPanel.classList.remove('flex');
+    galleryNormalHint.classList.remove('hidden');
+    World3D.deactivateSplitView();
   });
 
-  // Klik backdrop luar modal
-  poemOverlay.addEventListener('click', (e) => {
-    if (e.target === poemOverlay) {
-      closePoemModal();
-    }
+  // ==========================================================
+  // TRANSISI PORTAL: MELUNCUR MENEMBUS PORTAL KE BABAK KUE
+  // ==========================================================
+  btnActivatePortal.addEventListener('click', () => {
+    uiGalleryControls.classList.add('hidden');
+    chapterTag.textContent = "Interlude";
+    chapterTitle.textContent = "Crossing The Stargate";
+
+    World3D.transitionToPortal(() => {
+      // Callback setelah kamera sukses melesat menembus pusat portal
+      uiCakePanel.classList.remove('hidden');
+      uiCakePanel.classList.add('flex');
+      chapterTag.textContent = "Chapter II";
+      chapterTitle.textContent = "A Wish Upon The Dark";
+    });
   });
 
-  // Cegah klik di dalam box modal menutup modal
-  poemModalBox.addEventListener('click', (e) => {
-    e.stopPropagation();
-  });
-
-  // TRANSISI DARI GALERI KE KUE
-  btnToCake.addEventListener('click', () => {
-    uiGalleryHint.classList.add('hidden');
-    uiCakePanel.classList.remove('hidden');
-    uiCakePanel.classList.add('flex');
-    chapterTag.textContent = "Chapter II";
-    chapterTitle.textContent = "A Wish Upon The Dark";
-    World3D.transitionToCake();
-  });
-
-  // BABAK 2: KUIS TANGGAL & LILIN
+  // ==========================================================
+  // BABAK 2: KUIS TANGGAL & LILIN KUE 3D
+  // ==========================================================
   btnVerifyDate.addEventListener('click', () => {
     const val = parseInt(inputDate.value.trim());
     if (val === CONFIG.birthDate) {
@@ -212,7 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // BABAK 3: SURAT CINTA
+  // ==========================================================
+  // BABAK 3: SURAT CINTA UTAMA
+  // ==========================================================
   btnToLetter.addEventListener('click', () => {
     uiCakePanel.classList.add('hidden');
     uiLetterPanel.classList.remove('hidden');
