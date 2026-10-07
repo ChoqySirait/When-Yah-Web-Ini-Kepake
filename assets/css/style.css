@@ -1,6 +1,5 @@
 /* ============================================================ */
-/* 1. TYPOGRAPHY & SMOOTH BASE                                   */
-/* Mengatur pergerakan scroll halus dan rendering font tajam     */
+/* 1. TYPOGRAPHY & DASAR TAMPILAN                                */
 /* ============================================================ */
 html {
   scroll-behavior: smooth;
@@ -8,7 +7,6 @@ html {
   background-color: #0b090a;
 }
 
-/* Kustomisasi scrollbar agar tetap minimalis dan senada */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -24,8 +22,31 @@ html {
 }
 
 /* ============================================================ */
-/* 2. PERSPEKTIF 3D & EFEK GOYANGAN KARTU FOTO                  */
-/* Blok ini membuat kartu seolah mengambang pelan di ruang hampa */
+/* 2. EFEK GETAR LAYAR & TAHAN SEGEL (PANIC RUMBLE)             */
+/* ============================================================ */
+.holding-active {
+  box-shadow: 0 0 35px 10px rgba(164, 22, 26, 0.6) !important;
+  border-color: #d4af37 !important;
+}
+
+.rumble-subtle {
+  animation: rumbleEffect 0.15s infinite;
+}
+
+.rumble-intense {
+  animation: rumbleEffect 0.07s infinite;
+}
+
+@keyframes rumbleEffect {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  25% { transform: translate(-1px, -1px) rotate(-0.5deg); }
+  50% { transform: translate(-2px, 1px) rotate(0.5deg); }
+  75% { transform: translate(2px, -1px) rotate(0deg); }
+  100% { transform: translate(1px, 2px) rotate(0.5deg); }
+}
+
+/* ============================================================ */
+/* 3. PERSPEKTIF 3D & GOYANGAN HALUS KARTU FOTO                 */
 /* ============================================================ */
 .perspective-grid {
   perspective: 1000px;
@@ -37,12 +58,10 @@ html {
   animation: floatingDrift 6s ease-in-out infinite alternate;
 }
 
-/* Pola delay berselang agar tiap kartu tidak bergerak serempak */
 .floating-card:nth-child(even) {
   animation-delay: -3s;
 }
 
-/* Animasi melayang tipis (subtle drift) */
 @keyframes floatingDrift {
   0% {
     transform: translateY(0px) rotate(-1deg);
@@ -52,15 +71,13 @@ html {
   }
 }
 
-/* Efek saat disentuh atau diarahkan kursor */
 .floating-card:hover {
   transform: translateY(-10px) rotate(0deg) scale(1.02);
   box-shadow: 0 16px 32px -8px rgba(164, 22, 26, 0.35);
 }
 
 /* ============================================================ */
-/* 3. API LILIN & EFEK CAHAYA PENDAR                            */
-/* Blok ini merekayasa animasi api lilin agar berkedip organik  */
+/* 4. API LILIN BERKEDIP                                        */
 /* ============================================================ */
 .flame {
   position: absolute;
@@ -85,16 +102,11 @@ html {
 }
 
 /* ============================================================ */
-/* 4. ANIMASI PIRINGAN HITAM & TEKS KETIK                       */
-/* Blok ini memutar ikon piringan audio di pojok layar          */
+/* 5. PUTARAN PIRINGAN HITAM                                    */
 /* ============================================================ */
 @keyframes spinSlow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .vinyl-disc {
