@@ -1,114 +1,60 @@
 /* ============================================================ */
-/* 1. TYPOGRAPHY & DASAR TAMPILAN                                */
+/* LUXURY DARK ROMANCE BASE                                     */
 /* ============================================================ */
-html {
-  scroll-behavior: smooth;
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #070506;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  background-color: #0b090a;
 }
 
+/* Custom Scrollbar untuk Panel Surat */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b090a;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2b090c;
-  border-radius: 999px;
-}
-::-webkit-scrollbar-thumb:hover {
   background: #a4161a;
+  border-radius: 999px;
 }
 
 /* ============================================================ */
-/* 2. EFEK GETAR LAYAR & TAHAN SEGEL (PANIC RUMBLE)             */
+/* RUMBLE & SUSPENSE SHAKE                                      */
 /* ============================================================ */
-.holding-active {
-  box-shadow: 0 0 35px 10px rgba(164, 22, 26, 0.6) !important;
+.holding-seal {
+  box-shadow: 0 0 35px 12px rgba(164, 22, 26, 0.7) !important;
   border-color: #d4af37 !important;
 }
 
 .rumble-subtle {
-  animation: rumbleEffect 0.15s infinite;
+  animation: rumbleAnim 0.15s infinite;
 }
 
 .rumble-intense {
-  animation: rumbleEffect 0.07s infinite;
+  animation: rumbleAnim 0.06s infinite;
 }
 
-@keyframes rumbleEffect {
+@keyframes rumbleAnim {
   0% { transform: translate(1px, 1px) rotate(0deg); }
-  25% { transform: translate(-1px, -1px) rotate(-0.5deg); }
-  50% { transform: translate(-2px, 1px) rotate(0.5deg); }
+  25% { transform: translate(-1px, -1px) rotate(-0.4deg); }
+  50% { transform: translate(-2px, 1px) rotate(0.4deg); }
   75% { transform: translate(2px, -1px) rotate(0deg); }
-  100% { transform: translate(1px, 2px) rotate(0.5deg); }
+  100% { transform: translate(1px, 2px) rotate(0.4deg); }
 }
 
 /* ============================================================ */
-/* 3. PERSPEKTIF 3D & GOYANGAN HALUS KARTU FOTO                 */
+/* ROTATING VINYL CONTROLLER                                    */
 /* ============================================================ */
-.perspective-grid {
-  perspective: 1000px;
-}
-
-.floating-card {
-  transform-style: preserve-3d;
-  transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.5s ease;
-  animation: floatingDrift 6s ease-in-out infinite alternate;
-}
-
-.floating-card:nth-child(even) {
-  animation-delay: -3s;
-}
-
-@keyframes floatingDrift {
-  0% {
-    transform: translateY(0px) rotate(-1deg);
-  }
-  100% {
-    transform: translateY(-8px) rotate(1deg);
-  }
-}
-
-.floating-card:hover {
-  transform: translateY(-10px) rotate(0deg) scale(1.02);
-  box-shadow: 0 16px 32px -8px rgba(164, 22, 26, 0.35);
-}
-
-/* ============================================================ */
-/* 4. API LILIN BERKEDIP                                        */
-/* ============================================================ */
-.flame {
-  position: absolute;
-  top: -22px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 12px;
-  height: 24px;
-  background: radial-gradient(ellipse at bottom, #fff3b0 0%, #e0a96d 50%, rgba(164, 22, 26, 0.2) 90%);
-  border-radius: 50% 50% 20% 20%;
-  box-shadow: 0 0 18px 4px rgba(212, 175, 55, 0.6), 0 0 35px 8px rgba(164, 22, 26, 0.4);
-  animation: flicker 0.7s infinite alternate ease-in-out;
-}
-
-@keyframes flicker {
-  0% {
-    transform: translateX(-50%) scale(1) rotate(-1.5deg);
-  }
-  100% {
-    transform: translateX(-50%) scale(1.06) rotate(1.5deg);
-  }
-}
-
-/* ============================================================ */
-/* 5. PUTARAN PIRINGAN HITAM                                    */
-/* ============================================================ */
-@keyframes spinSlow {
+@keyframes spinDisc {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
 .vinyl-disc {
-  animation: spinSlow 10s linear infinite;
+  animation: spinDisc 9s linear infinite;
 }

@@ -1,6 +1,5 @@
 // ============================================================
-// SISTEM KONTROL PEMUTAR AUDIO LATAR
-// Menangani pemutaran otomatis setelah segel pecah
+// AUDIO CONTROLLER ENGINE
 // ============================================================
 const AudioManager = {
   audioEl: document.getElementById('bg-audio'),
@@ -28,9 +27,7 @@ const AudioManager = {
       this.pill.classList.remove('hidden');
       this.pill.classList.add('flex');
       this.toggleBtn.textContent = '⏸';
-    }).catch(err => {
-      console.warn("Autoplay ditolak peramban:", err);
-    });
+    }).catch(err => console.warn("Autoplay dicegah browser:", err));
   },
 
   pause() {
