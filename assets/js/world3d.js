@@ -1,13 +1,12 @@
 // ============================================================
-// MASTER 3D ENGINE (THREE.JS + GSAP)
-// Tema: Midnight Ruby, Champagne Gold & Cascading Planes
+// MASTER 3D ENGINE (CURVED SHOWCASE & ROBUST POINTER PICKING)
 // ============================================================
 const World3D = {
   canvas: document.getElementById('webgl-canvas'),
   renderer: null,
   scene: null,
   camera: null,
-  
+
   // Groups
   embersGroup: new THREE.Group(),
   crystalGroup: new THREE.Group(),
@@ -18,12 +17,17 @@ const World3D = {
   candleFlameMesh: null,
   candleLight: null,
   cardsMeshes: [],
-  
-  // State Interaksi
+
+  // State Galeri & Interaksi
   activeStage: 'crystal',
+  currentCardIndex: 0,
+  targetGalleryAngle: 0,
+  currentGalleryAngle: 0,
   isDragging: false,
-  isModalOpen: false, // Flag agar raycast tidak aktif saat modal terbuka
-  previousMousePosition: { x: 0, y: 0 },
+  pointerDownPos: { x: 0, y: 0 },
+  previousPointerPos: { x: 0, y: 0 },
+  isModalOpen: false,
+
   raycaster: new THREE.Raycaster(),
   mouse: new THREE.Vector2(),
   onCardClickCallback: null,
@@ -40,30 +44,30 @@ const World3D = {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.3;
+    this.renderer.toneMappingExposure = 1.35;
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(0x070506, 0.05);
+    this.scene.fog = new THREE.FogExp2(0x060405, 0.04);
 
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
     this.camera.position.set(0, 0, 7.5);
 
-    // Pencahayaan
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    // Pencahayaan Sinematik
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     this.scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xd4af37, 1.4);
-    dirLight.position.set(5, 8, 5);
-    this.scene.add(dirLight);
+    const goldKeyLight = new THREE.DirectionalLight(0xd4af37, 1.8);
+    goldKeyLight.position.set(6, 8, 6);
+    this.scene.add(goldKeyLight);
 
-    const wineRimLight = new THREE.DirectionalLight(0xa4161a, 2.0);
+    const wineRimLight = new THREE.DirectionalLight(0xa4161a, 2.2);
     wineRimLight.position.set(-6, -4, -4);
     this.scene.add(wineRimLight);
 
-    // Bangun Objek 3D
+    // Bangun Aset 3D
     this.buildEmbers();
     this.buildRubyHeartCrystal();
-    this.buildCascadingGallery();
+    this.buildCurvedGallery();
     this.buildTieredCake();
 
     this.scene.add(this.embersGroup);
@@ -78,7 +82,7 @@ const World3D = {
     this.animate();
   },
 
-  // 1. PARTIKEL DEBU EMAS & MERAH MAWAR
+  // 1. DEBU EMAS & MERAH MAWAR
   buildEmbers() {
     const count = 500;
     const geometry = new THREE.BufferGeometry();
@@ -89,9 +93,9 @@ const World3D = {
     const ruby = new THREE.Color(0xa4161a);
 
     for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 24;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 24;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 24;
+      positions[i * 3] = (Math.random() - 0.5) * 26;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 26;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 26;
 
       const chosen = Math.random() > 0.4 ? gold : ruby;
       colors[i * 3] = chosen.r;
@@ -103,10 +107,10 @@ const World3D = {
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     const material = new THREE.PointsMaterial({
-      size: 0.045,
+      size: 0.05,
       vertexColors: true,
       transparent: true,
-      opacity: 0.8,
+      opacity: 0.85,
       blending: THREE.AdditiveBlending
     });
 
@@ -114,23 +118,21 @@ const World3D = {
     this.embersGroup.add(points);
   },
 
-  // 2. PERMATA RUBY MERAH DELIMA & CINCIN EMAS (Bukan batu obsidian dingin)
+  // 2. PERMATA RUBY MERAH DELIMA
   buildRubyHeartCrystal() {
-    // Permata Icosahedron Merah Anggur
-    const gemGeom = new THREE.IcosahedronGeometry(1.25, 0);
+    const gemGeom = new THREE.IcosahedronGeometry(1.3, 0);
     const gemMat = new THREE.MeshStandardMaterial({
-      color: 0x5a0914,
+      color: 0x6a040f,
       metalness: 0.85,
       roughness: 0.15,
       emissive: 0x800e13,
-      emissiveIntensity: 0.45
+      emissiveIntensity: 0.5
     });
     const gem = new THREE.Mesh(gemGeom, gemMat);
     gem.name = "rubyGem";
     this.crystalGroup.add(gem);
 
-    // Cincin Emas Champagne Mengorbit
-    const ringGeom = new THREE.TorusGeometry(1.95, 0.025, 16, 100);
+    const ringGeom = new THREE.TorusGeometry(2.0, 0.03, 16, 100);
     const ringMat = new THREE.MeshStandardMaterial({
       color: 0xd4af37,
       metalness: 0.95,
@@ -142,56 +144,59 @@ const World3D = {
     this.crystalGroup.add(ring);
   },
 
-  // 3. GALERI KACA CASCADING
-  buildCascadingGallery() {
+  // 3. GALERI 3D PANGGUNG MELENGKUNG (CURVED CAROUSEL)
+  buildCurvedGallery() {
     const textureLoader = new THREE.TextureLoader();
-
-    this.galleryGroup.rotation.x = 0.25;
-    this.galleryGroup.rotation.y = -0.45;
-    this.galleryGroup.rotation.z = 0.15;
+    const count = CONFIG.memories.length;
+    const radius = 4.8; // Radius kelengkungan lingkaran kartu
 
     CONFIG.memories.forEach((item, index) => {
       const cardGroup = new THREE.Group();
 
-      const slabGeom = new THREE.BoxGeometry(2.1, 2.7, 0.08);
+      // Bingkai Kaca Obsidian
+      const slabGeom = new THREE.BoxGeometry(2.3, 3.1, 0.08);
       const slabMat = new THREE.MeshStandardMaterial({
-        color: 0x14080c,
+        color: 0x14080d,
         metalness: 0.85,
         roughness: 0.2,
         emissive: 0x220509,
-        emissiveIntensity: 0.2
+        emissiveIntensity: 0.3
       });
       const slab = new THREE.Mesh(slabGeom, slabMat);
       cardGroup.add(slab);
 
-      const planeGeom = new THREE.PlaneGeometry(1.9, 2.4);
+      // Permukaan Foto
+      const planeGeom = new THREE.PlaneGeometry(2.1, 2.8);
       const texture = textureLoader.load(item.image);
       const planeMat = new THREE.MeshBasicMaterial({ map: texture });
       const plane = new THREE.Mesh(planeGeom, planeMat);
       plane.position.z = 0.045;
       cardGroup.add(plane);
 
+      // Garis Batas Emas
       const borderGeom = new THREE.EdgesGeometry(slabGeom);
-      const borderMat = new THREE.LineBasicMaterial({ color: 0xd4af37, opacity: 0.4, transparent: true });
+      const borderMat = new THREE.LineBasicMaterial({ color: 0xd4af37, opacity: 0.6, transparent: true });
       const borderLines = new THREE.LineSegments(borderGeom, borderMat);
       cardGroup.add(borderLines);
 
-      const spacingX = 2.4;
-      const spacingZ = -1.6;
-      const spacingY = 0.7;
+      // Kalkulasi Posisi Melengkung Melingkar Menghadap Kamera
+      const angle = (index / count) * Math.PI * 2;
       cardGroup.position.set(
-        (index - (CONFIG.memories.length - 1) / 2) * spacingX,
-        (index % 2 === 0 ? 0.3 : -0.3) * spacingY,
-        index * spacingZ
+        Math.sin(angle) * radius,
+        0,
+        Math.cos(angle) * radius - radius
       );
+      cardGroup.rotation.y = angle;
 
-      cardGroup.userData = { index: index, data: item };
+      cardGroup.userData = { index: index, data: item, baseAngle: angle };
       this.cardsMeshes.push(cardGroup);
       this.galleryGroup.add(cardGroup);
     });
+
+    this.updateCardFocus();
   },
 
-  // 4. KUE TINGKAT BELUDRU 3D
+  // 4. KUE BELUDRU GELAP 3D
   buildTieredCake() {
     this.cakeGroup.position.set(0, -0.6, 0);
 
@@ -239,20 +244,53 @@ const World3D = {
     this.cakeGroup.add(this.candleLight);
   },
 
-  // TRANSISI GSAP
+  // NAVIGASI KARTU
+  nextCard() {
+    this.currentCardIndex = (this.currentCardIndex + 1) % CONFIG.memories.length;
+    this.rotateToCurrentCard();
+  },
+
+  prevCard() {
+    this.currentCardIndex = (this.currentCardIndex - 1 + CONFIG.memories.length) % CONFIG.memories.length;
+    this.rotateToCurrentCard();
+  },
+
+  rotateToCurrentCard() {
+    const count = CONFIG.memories.length;
+    this.targetGalleryAngle = -(this.currentCardIndex / count) * Math.PI * 2;
+    this.updateCardFocus();
+  },
+
+  updateCardFocus() {
+    this.cardsMeshes.forEach((card, idx) => {
+      const isFocused = idx === this.currentCardIndex;
+      gsap.to(card.scale, {
+        x: isFocused ? 1.08 : 0.9,
+        y: isFocused ? 1.08 : 0.9,
+        z: isFocused ? 1.08 : 0.9,
+        duration: 0.4
+      });
+    });
+  },
+
+  getCurrentCardData() {
+    return CONFIG.memories[this.currentCardIndex];
+  },
+
+  // TRANSISI BABAK
   transitionToGallery() {
     this.activeStage = 'gallery';
     gsap.to(this.crystalGroup.scale, { x: 3.5, y: 3.5, z: 3.5, duration: 1.2, ease: "power2.in" });
     gsap.to(this.crystalGroup.position, { z: 4, duration: 1.2, ease: "power2.in", onComplete: () => {
       this.crystalGroup.visible = false;
       this.galleryGroup.visible = true;
-      gsap.from(this.galleryGroup.position, { y: -4, z: -5, duration: 1.8, ease: "power3.out" });
+      gsap.from(this.galleryGroup.position, { y: -3, z: -4, duration: 1.5, ease: "power3.out" });
     }});
   },
 
   transitionToCake() {
     this.activeStage = 'cake';
-    gsap.to(this.galleryGroup.position, { y: 6, opacity: 0, duration: 1.2, ease: "power2.in", onComplete: () => {
+    gsap.to(this.galleryGroup.position, { y: 6, opacity: 0, duration: 1.0, ease: "power2.in", onComplete: () => {
       this.galleryGroup.visible = false;
       this.cakeGroup.visible = true;
       gsap.from(this.cakeGroup.scale, { x: 0.1, y: 0.1, z: 0.1, duration: 1.4, ease: "back.out(1.5)" });
@@ -274,10 +312,14 @@ const World3D = {
 
   transitionToLetter() {
     this.activeStage = 'letter';
-    gsap.to(this.cakeGroup.position, { y: -5, duration: 1.2, ease: "power2.in" });
-    gsap.to(this.camera.position, { z: 9, duration: 2, ease: "power2.out" });
+    // Sembunyikan kue sepenuhnya agar tidak tembus ke bawah surat
+    gsap.to(this.cakeGroup.position, { y: -20, duration: 1.0, onComplete: () => {
+      this.cakeGroup.visible = false;
+    }});
+    gsap.to(this.camera.position, { z: 8, duration: 2, ease: "power2.out" });
   },
 
+  // DETEKSI SENTUHAN / KLIK DENGAN TOLERANSI AMBANG BATAS
   setupEvents() {
     window.addEventListener('resize', () => {
       this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -287,63 +329,71 @@ const World3D = {
 
     const onPointerDown = (e) => {
       this.isDragging = true;
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      this.previousMousePosition = { x: clientX, y: clientY };
+      const x = e.touches ? e.touches[0].clientX : e.clientX;
+      const y = e.touches ? e.touches[0].clientY : e.clientY;
+      this.pointerDownPos = { x, y };
+      this.previousPointerPos = { x, y };
     };
 
     const onPointerMove = (e) => {
       if (!this.isDragging || this.isModalOpen) return;
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      const deltaX = clientX - this.previousMousePosition.x;
+      const x = e.touches ? e.touches[0].clientX : e.clientX;
+      const y = e.touches ? e.touches[0].clientY : e.clientY;
+      const deltaX = x - this.previousPointerPos.x;
 
       if (this.activeStage === 'gallery') {
-        this.galleryGroup.rotation.y += deltaX * 0.004;
-        this.galleryGroup.position.x += deltaX * 0.005;
+        this.targetGalleryAngle += deltaX * 0.005;
       } else if (this.activeStage === 'cake') {
         this.cakeGroup.rotation.y += deltaX * 0.008;
       }
 
-      this.previousMousePosition = { x: clientX, y: clientY };
+      this.previousPointerPos = { x, y };
     };
 
-    const onPointerUp = () => {
+    const onPointerUp = (e) => {
+      if (!this.isDragging) return;
       this.isDragging = false;
-    };
 
-    const onClick = (e) => {
-      // Jika modal sedang terbuka, abaikan klik 3D
-      if (this.activeStage !== 'gallery' || this.isModalOpen) return;
-      const clientX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
-      const clientY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
-      if (!clientX || !clientY) return;
+      const x = (e.changedTouches ? e.changedTouches[0].clientX : e.clientX) || this.previousPointerPos.x;
+      const y = (e.changedTouches ? e.changedTouches[0].clientY : e.clientY) || this.previousPointerPos.y;
 
-      this.mouse.x = (clientX / window.innerWidth) * 2 - 1;
-      this.mouse.y = -(clientY / window.innerHeight) * 2 + 1;
-
-      this.raycaster.setFromCamera(this.mouse, this.camera);
-      const intersects = this.raycaster.intersectObjects(this.cardsMeshes, true);
-
-      if (intersects.length > 0) {
-        let obj = intersects[0].object;
-        while (obj.parent && !obj.userData.data) {
-          obj = obj.parent;
-        }
-        if (obj.userData && obj.userData.data && this.onCardClickCallback) {
-          this.onCardClickCallback(obj.userData.data);
-        }
+      // Ambang batas: Jika pergerakan kurang dari 12 piksel, anggap sebagai KETUKAN (TAP/CLICK)
+      const dist = Math.hypot(x - this.pointerDownPos.x, y - this.pointerDownPos.y);
+      if (dist < 12 && this.activeStage === 'gallery' && !this.isModalOpen) {
+        this.handleRaycastPick(x, y);
       }
     };
 
     window.addEventListener('mousedown', onPointerDown);
     window.addEventListener('mousemove', onPointerMove);
     window.addEventListener('mouseup', onPointerUp);
-    window.addEventListener('click', onClick);
 
     window.addEventListener('touchstart', onPointerDown, { passive: true });
     window.addEventListener('touchmove', onPointerMove, { passive: true });
     window.addEventListener('touchend', onPointerUp, { passive: true });
+  },
+
+  handleRaycastPick(clientX, clientY) {
+    const rect = this.canvas.getBoundingClientRect();
+    this.mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+    this.mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    const intersects = this.raycaster.intersectObjects(this.cardsMeshes, true);
+
+    if (intersects.length > 0) {
+      let root = intersects[0].object;
+      while (root.parent && root.userData.index === undefined) {
+        root = root.parent;
+      }
+      if (root.userData && root.userData.index !== undefined) {
+        this.currentCardIndex = root.userData.index;
+        this.rotateToCurrentCard();
+        if (this.onCardClickCallback) {
+          this.onCardClickCallback(root.userData.data);
+        }
+      }
+    }
   },
 
   animate() {
@@ -364,9 +414,13 @@ const World3D = {
       }
     }
 
-    if (this.activeStage === 'gallery' && !this.isDragging) {
+    // Pergerakan sudut galeri yang halus (Smooth Lerping)
+    if (this.activeStage === 'gallery') {
+      this.currentGalleryAngle += (this.targetGalleryAngle - this.currentGalleryAngle) * 0.08;
+      this.galleryGroup.rotation.y = this.currentGalleryAngle;
+
       this.cardsMeshes.forEach((card, idx) => {
-        card.position.y += Math.sin(time * 2 + idx) * 0.0012;
+        card.position.y = Math.sin(time * 2 + idx) * 0.06;
       });
     }
 

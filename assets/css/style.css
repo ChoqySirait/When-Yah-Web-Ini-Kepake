@@ -1,5 +1,5 @@
 /* ============================================================ */
-/* LUXURY DARK ROMANCE BASE                                     */
+/* BASE STYLING & LUXURY PALETTE                                */
 /* ============================================================ */
 html, body {
   margin: 0;
@@ -7,24 +7,25 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: #070506;
+  background-color: #060405;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* Custom Scrollbar untuk Panel Surat */
-::-webkit-scrollbar {
-  width: 4px;
+/* Custom Scrollbar Emas Halus Khusus Panel Surat */
+#ui-letter-panel::-webkit-scrollbar {
+  width: 5px;
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+#ui-letter-panel::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 999px;
 }
-::-webkit-scrollbar-thumb {
-  background: #a4161a;
+#ui-letter-panel::-webkit-scrollbar-thumb {
+  background: #d4af37;
   border-radius: 999px;
 }
 
 /* ============================================================ */
-/* RUMBLE & SUSPENSE SHAKE                                      */
+/* SUSPENSE RUMBLE ANIMATION                                    */
 /* ============================================================ */
 .holding-seal {
   box-shadow: 0 0 35px 12px rgba(164, 22, 26, 0.7) !important;
@@ -48,7 +49,7 @@ html, body {
 }
 
 /* ============================================================ */
-/* ROTATING VINYL CONTROLLER                                    */
+/* VINYL ROTATION                                               */
 /* ============================================================ */
 @keyframes spinDisc {
   from { transform: rotate(0deg); }
