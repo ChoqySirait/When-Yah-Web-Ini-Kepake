@@ -1,22 +1,27 @@
 // ============================================================
-// PUSAT KONFIGURASI TEMPLATE & EMAIL PENAMPUNG HARAPAN
+// PUSAT KONFIGURASI TEMPLATE & MEDIA
 // ============================================================
 const CONFIG = {
   recipientName: "Bidadari Malam",
   senderName: "Seseorang yang Selalu Mengagumimu",
 
-  // Masukkan email Anda di sini agar isi harapan otomatis masuk ke inbox
+  // Email penerima harapan (wish)
   receiverEmail: "email_anda_disini@gmail.com",
 
   // Tanggal kelahiran untuk kuis (angka 1 - 31)
   birthDate: 14,
 
-  // Audio: Menggunakan file lokal jika ada, atau fallback URL romantis
+  // TRACK 1: Musik Romantis Prolog & Galeri
   audioUrl: "assets/audio/lagu.mp3",
   fallbackAudioUrl: "https://cdn.pixabay.com/download/audio/2022/05/16/audio_db6591201e.mp3?filename=romantic-ambient-111427.mp3",
   audioTitle: "Until I Found You (Acoustic Ambient)",
 
-  // Galeri Memori 3D & Syair (Jalur foto lokal dengan fallback otomatis)
+  // TRACK 2: Lagu Selamat Ulang Tahun (Aktif saat masuk portal)
+  birthdayAudioUrl: "assets/audio/birthday.mp3",
+  fallbackBirthdayAudioUrl: "https://cdn.pixabay.com/download/audio/2022/10/14/audio_9939f7921c.mp3?filename=happy-birthday-to-you-piano-123472.mp3",
+  birthdayAudioTitle: "Happy Birthday to You (Acoustic Piano)",
+
+  // Galeri Memori 3D (Jalur foto lokal & fallback)
   memories: [
     {
       image: "assets/images/foto1.jpg",

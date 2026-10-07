@@ -24,6 +24,20 @@ html, body {
 }
 
 /* ============================================================ */
+/* KURSOR TYPEWRITER BERKEDIP EMAS                              */
+/* ============================================================ */
+.typewriter-cursor::after {
+  content: '│';
+  color: #d4af37;
+  animation: cursorBlink 0.7s infinite alternate;
+}
+
+@keyframes cursorBlink {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* ============================================================ */
 /* SUSPENSE RUMBLE ANIMATION (GETAR LAYAR PROGRESIF)            */
 /* ============================================================ */
 .holding-seal {

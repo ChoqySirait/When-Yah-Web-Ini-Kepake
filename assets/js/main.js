@@ -186,13 +186,20 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==========================================================
-  // TRANSISI DARI PORTAL MENEMBUS KE BABAK KUE
+  // TRANSISI PORTAL: GANTI MUSIK OTOMATIS KE HAPPY BIRTHDAY
   // ==========================================================
   btnEnterPortal.addEventListener('click', () => {
     portalTriggerContainer.classList.add('hidden');
     uiGalleryFloating.classList.add('hidden');
     chapterTag.textContent = "Interlude";
     chapterTitle.textContent = "Crossing The Stargate";
+
+    // Ganti musik ke Happy Birthday (Acoustic) secara mulus
+    AudioManager.switchTrack(
+      CONFIG.birthdayAudioUrl,
+      CONFIG.fallbackBirthdayAudioUrl,
+      CONFIG.birthdayAudioTitle
+    );
 
     World3D.transitionToPortal(() => {
       uiCakePanel.classList.remove('hidden');
@@ -203,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==========================================================
-  // BABAK 2: KUIS TANGGAL & PENGIRIMAN DOA KE EMAIL
+  // BABAK 2: KUIS TANGGAL & PESTA KEMBANG API LILIN
   // ==========================================================
   btnVerifyDate.addEventListener('click', () => {
     const val = parseInt(inputDate.value.trim());
@@ -240,20 +247,37 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
+    // Tiup lilin memicu semburan air mancur kembang api 3D
     World3D.extinguishCandle();
     cakeWishBox.style.display = 'none';
     btnToLetter.classList.remove('hidden');
 
+    // Rentetan kembang api bertingkat di layar
     confetti({
-      particleCount: 170,
+      particleCount: 180,
       spread: 100,
       origin: { y: 0.6 },
       colors: ['#d4af37', '#a4161a', '#ffffff', '#ffd700']
     });
+
+    setTimeout(() => {
+      confetti({
+        particleCount: 100,
+        angle: 60,
+        spread: 60,
+        origin: { x: 0 }
+      });
+      confetti({
+        particleCount: 100,
+        angle: 120,
+        spread: 60,
+        origin: { x: 1 }
+      });
+    }, 400);
   });
 
   // ==========================================================
-  // BABAK 3: SURAT CINTA UTAMA
+  // BABAK 3: SURAT CINTA TYPEWRITER AUTO-SCROLL
   // ==========================================================
   btnToLetter.addEventListener('click', () => {
     uiCakePanel.classList.add('hidden');
@@ -263,16 +287,59 @@ document.addEventListener('DOMContentLoaded', () => {
     chapterTitle.textContent = "Eternal Note";
 
     World3D.transitionToLetter();
-
-    document.getElementById('letter-salutation').textContent = CONFIG.letter.salutation;
-    const bodyEl = document.getElementById('letter-body');
-    bodyEl.innerHTML = '';
-    CONFIG.letter.body.forEach(para => {
-      const p = document.createElement('p');
-      p.textContent = para;
-      bodyEl.appendChild(p);
-    });
-    document.getElementById('letter-signature').textContent = CONFIG.letter.signature;
-    document.getElementById('letter-date').textContent = CONFIG.letter.date;
+    startLetterTypewriter();
   });
+
+  function startLetterTypewriter() {
+    const salutationEl = document.getElementById('letter-salutation');
+    const bodyEl = document.getElementById('letter-body');
+    const signatureEl = document.getElementById('letter-signature');
+    const dateEl = document.getElementById('letter-date');
+    const letterPanel = document.getElementById('ui-letter-panel');
+
+    salutationEl.textContent = '';
+    bodyEl.innerHTML = '';
+    signatureEl.textContent = '';
+    dateEl.textContent = '';
+
+    // Step 1: Ketik Salutation
+    typeString(salutationEl, CONFIG.letter.salutation, 40, () => {
+      // Step 2: Ketik Paragraf satu demi satu
+      let pIndex = 0;
+      function nextParagraph() {
+        if (pIndex < CONFIG.letter.body.length) {
+          const p = document.createElement('p');
+          bodyEl.appendChild(p);
+          typeString(p, CONFIG.letter.body[pIndex], 30, () => {
+            pIndex++;
+            // Scroll otomatis ke bawah agar kalimat terbaru selalu terlihat
+            letterPanel.scrollTo({ top: letterPanel.scrollHeight, behavior: 'smooth' });
+            setTimeout(nextParagraph, 200);
+          });
+        } else {
+          // Step 3: Ketik Signature & Tanggal
+          typeString(signatureEl, CONFIG.letter.signature, 40, () => {
+            dateEl.textContent = CONFIG.letter.date;
+            letterPanel.scrollTo({ top: letterPanel.scrollHeight, behavior: 'smooth' });
+          });
+        }
+      }
+      nextParagraph();
+    });
+  }
+
+  function typeString(element, text, speed, onDone) {
+    element.classList.add('typewriter-cursor');
+    let idx = 0;
+    const timer = setInterval(() => {
+      if (idx < text.length) {
+        element.textContent += text.charAt(idx);
+        idx++;
+      } else {
+        clearInterval(timer);
+        element.classList.remove('typewriter-cursor');
+        if (onDone) onDone();
+      }
+    }, speed);
+  }
 });

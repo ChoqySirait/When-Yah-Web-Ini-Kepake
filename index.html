@@ -13,8 +13,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <!-- Core Engines (Three.js, GSAP, Canvas Confetti) -->
+  <!-- Core Engines: Three.js, OrbitControls, GSAP, Canvas Confetti -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
@@ -22,8 +23,8 @@
 </head>
 <body class="bg-[#050304] text-[#f5f3f4] min-h-screen overflow-hidden select-none">
 
-  <!-- 3D WEBGL FULLSCREEN CANVAS DENGAN TOUCH-ACTION NONE -->
-  <canvas id="webgl-canvas" class="fixed inset-0 w-full h-full z-0 block touch-none cursor-grab active:cursor-grabbing"></canvas>
+  <!-- 3D WEBGL FULLSCREEN CANVAS -->
+  <canvas id="webgl-canvas" class="fixed inset-0 w-full h-full z-0 block touch-none"></canvas>
 
   <!-- FLOATING MUSIC PLAYER -->
   <div id="audio-pill" class="fixed top-5 right-5 z-40 hidden items-center gap-3 bg-[#12080c]/85 backdrop-blur-md px-4 py-2 rounded-full border border-[#d4af37]/40 shadow-2xl">
@@ -47,7 +48,7 @@
     <!-- CENTER AREA -->
     <div class="w-full max-w-6xl flex flex-col items-center justify-center text-center my-auto relative">
 
-      <!-- BABAK 0: LINGKARAN TAHAN DENGAN PUSARAN ENERGI TERSERAP -->
+      <!-- BABAK 0: LINGKARAN TAHAN DENGAN PUSARAN ENERGI -->
       <div id="ui-seal" class="pointer-events-auto flex flex-col items-center transition-all duration-700">
         <div class="relative flex items-center justify-center">
           <svg class="w-36 h-36 transform -rotate-90">
@@ -62,7 +63,7 @@
         <p id="seal-tease" class="text-xs text-[#d4af37] italic mt-6 h-6 tracking-wide transition-opacity duration-200">Sentuh dan tahan untuk menyerap energi ke dalam kado...</p>
       </div>
 
-      <!-- BABAK 1: FLOATING POETRY DISPLAY (MURNI TIPOGRAFI MELAYANG TANPA BOX KAKU) -->
+      <!-- BABAK 1: FLOATING POETRY DISPLAY (MURNI TIPOGRAFI MELAYANG) -->
       <div id="ui-gallery-floating" class="hidden pointer-events-auto w-full transition-all duration-700 relative">
         <div id="floating-poem-container" class="w-full max-w-md p-6 flex flex-col transition-all duration-700">
           <span id="poem-tag" class="text-[11px] tracking-[0.35em] uppercase text-[#d4af37] font-mono block mb-2 drop-shadow-md">Memory</span>
@@ -104,19 +105,19 @@
         </button>
       </div>
 
-      <!-- BABAK 3: SURAT CINTA UTAMA -->
+      <!-- BABAK 3: SURAT CINTA UTAMA (TYPEWRITER AUTO-SCROLL) -->
       <div id="ui-letter-panel" class="hidden pointer-events-auto w-full max-w-lg bg-[#14060c]/95 backdrop-blur-2xl border border-[#d4af37]/40 rounded-2xl p-6 sm:p-10 shadow-2xl transition-all duration-1000 max-h-[75vh] overflow-y-auto flex flex-col text-left">
-        <h3 id="letter-salutation" class="font-['Great_Vibes'] text-3xl sm:text-4xl text-[#d4af37] mb-6"></h3>
+        <h3 id="letter-salutation" class="font-['Great_Vibes'] text-3xl sm:text-4xl text-[#d4af37] mb-6 min-h-[40px]"></h3>
         <div id="letter-body" class="font-['Cormorant_Garamond'] text-base sm:text-lg text-gray-200 leading-relaxed space-y-4 font-light text-justify"></div>
         <div class="mt-8 pt-6 border-t border-white/10 flex flex-col items-end">
-          <p class="font-['Great_Vibes'] text-2xl text-[#d4af37]" id="letter-signature"></p>
+          <p class="font-['Great_Vibes'] text-2xl text-[#d4af37] min-h-[32px]" id="letter-signature"></p>
           <p class="text-[10px] text-gray-500 font-mono mt-1" id="letter-date"></p>
         </div>
       </div>
 
     </div>
 
-    <!-- FOOTER NAVIGASI BERSIH (PORTAL STARGATE) -->
+    <!-- FOOTER NAVIGASI (PORTAL STARGATE) -->
     <footer class="pb-2 pointer-events-auto flex flex-col items-center gap-2">
       <div id="portal-trigger-container" class="hidden">
         <button id="btn-enter-portal" class="px-8 py-2.5 rounded-full bg-[#12080c]/80 border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black font-mono text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all cursor-pointer">
