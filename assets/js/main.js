@@ -4,21 +4,23 @@
 document.addEventListener('DOMContentLoaded', () => {
   AudioManager.init();
 
-  // Inisialisasi 3D Engine dengan Callback Split View
-  World3D.init((memoryData) => {
-    displaySplitPoem(memoryData);
+  // Inisialisasi 3D Engine dengan Callback Alternating Split View
+  World3D.init((memoryData, isEven) => {
+    displayFloatingPoem(memoryData, isEven);
   });
 
   const chapterTag = document.getElementById('chapter-tag');
   const chapterTitle = document.getElementById('chapter-title');
 
   const uiSeal = document.getElementById('ui-seal');
-  const uiGalleryControls = document.getElementById('ui-gallery-controls');
-  const galleryNormalHint = document.getElementById('gallery-normal-hint');
-  const gallerySplitPanel = document.getElementById('gallery-split-panel');
-  const splitPoemTitle = document.getElementById('split-poem-title');
-  const splitPoemText = document.getElementById('split-poem-text');
+  const uiGalleryFloating = document.getElementById('ui-gallery-floating');
+  const floatingPoemContainer = document.getElementById('floating-poem-container');
+  const poemTag = document.getElementById('poem-tag');
+  const poemTitle = document.getElementById('poem-title');
+  const poemText = document.getElementById('poem-text');
   const btnCloseSplit = document.getElementById('btn-close-split');
+  const portalTriggerContainer = document.getElementById('portal-trigger-container');
+  const btnEnterPortal = document.getElementById('btn-enter-portal');
 
   const uiCakePanel = document.getElementById('ui-cake-panel');
   const uiLetterPanel = document.getElementById('ui-letter-panel');
@@ -28,10 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const sealPercent = document.getElementById('seal-percent');
   const sealLabel = document.getElementById('seal-label');
   const sealTease = document.getElementById('seal-tease');
-
-  const btnPrevCard = document.getElementById('btn-prev-card');
-  const btnNextCard = document.getElementById('btn-next-card');
-  const btnActivatePortal = document.getElementById('btn-activate-portal');
 
   const cakeGate = document.getElementById('cake-gate');
   const cakeWishBox = document.getElementById('cake-wish-box');
@@ -44,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnToLetter = document.getElementById('btn-to-letter');
 
   // ==========================================================
-  // BABAK 0: TAHAN TOMBOL & PUSARAN ENERGI MASUK KE KADO
+  // BABAK 0: TAHAN TOMBOL DENGAN ENERGI TERSERAP KE KADO
   // ==========================================================
   const totalDuration = 7000;
   const circumference = 402;
@@ -138,8 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     AudioManager.play();
     World3D.burstGiftBox(() => {
       uiSeal.classList.add('hidden');
-      uiGalleryControls.classList.remove('hidden');
-      uiGalleryControls.classList.add('flex');
+      portalTriggerContainer.classList.remove('hidden');
       chapterTag.textContent = "Chapter I";
       chapterTitle.textContent = "Unspoken Beauty";
     });
@@ -151,24 +148,29 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('touchend', cancelHold);
 
   // ==========================================================
-  // BABAK 1: GALERI 3D & FLOATING POETRY KIRI
+  // BABAK 1: FLOATING POETRY DISPLAY (ALTERNATIF KIRI / KANAN)
   // ==========================================================
-  btnNextCard.addEventListener('click', () => World3D.nextCard());
-  btnPrevCard.addEventListener('click', () => World3D.prevCard());
-
   let poemTypeInterval = null;
-  function displaySplitPoem(data) {
-    galleryNormalHint.classList.add('hidden');
-    gallerySplitPanel.classList.remove('hidden');
-    gallerySplitPanel.classList.add('flex');
 
-    splitPoemTitle.textContent = data.title;
+  function displayFloatingPoem(data, isEven) {
+    uiGalleryFloating.classList.remove('hidden');
+    portalTriggerContainer.classList.add('hidden');
+
+    if (isEven) {
+      floatingPoemContainer.className = "w-full max-w-md p-6 flex flex-col sm:mr-auto sm:ml-0 text-left transition-all duration-700 items-start";
+    } else {
+      floatingPoemContainer.className = "w-full max-w-md p-6 flex flex-col sm:ml-auto sm:mr-0 text-right transition-all duration-700 items-end";
+    }
+
+    poemTag.textContent = "Chapter I • Unspoken Beauty";
+    poemTitle.textContent = data.title;
+
     clearInterval(poemTypeInterval);
-    splitPoemText.textContent = '';
+    poemText.textContent = '';
     let i = 0;
     poemTypeInterval = setInterval(() => {
       if (i < data.poem.length) {
-        splitPoemText.textContent += data.poem.charAt(i);
+        poemText.textContent += data.poem.charAt(i);
         i++;
       } else {
         clearInterval(poemTypeInterval);
@@ -178,17 +180,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnCloseSplit.addEventListener('click', () => {
     clearInterval(poemTypeInterval);
-    gallerySplitPanel.classList.add('hidden');
-    gallerySplitPanel.classList.remove('flex');
-    galleryNormalHint.classList.remove('hidden');
+    uiGalleryFloating.classList.add('hidden');
+    portalTriggerContainer.classList.remove('hidden');
     World3D.deactivateSplitView();
   });
 
   // ==========================================================
-  // TRANSISI PORTAL MENEMBUS DIMENSI KUE
+  // TRANSISI DARI PORTAL MENEMBUS KE BABAK KUE
   // ==========================================================
-  btnActivatePortal.addEventListener('click', () => {
-    uiGalleryControls.classList.add('hidden');
+  btnEnterPortal.addEventListener('click', () => {
+    portalTriggerContainer.classList.add('hidden');
+    uiGalleryFloating.classList.add('hidden');
     chapterTag.textContent = "Interlude";
     chapterTitle.textContent = "Crossing The Stargate";
 
@@ -218,7 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
   btnBlowCandle.addEventListener('click', () => {
     const userWish = wishInput.value.trim();
 
-    // Kirim doa otomatis ke email melalui FormSubmit AJAX
     if (CONFIG.receiverEmail && userWish) {
       wishStatus.textContent = "Mengirimkan harapan ke langit...";
       fetch(`https://formsubmit.co/ajax/${encodeURIComponent(CONFIG.receiverEmail)}`, {
@@ -228,9 +229,9 @@ document.addEventListener('DOMContentLoaded', () => {
           'Accept': 'application/json'
         },
         body: JSON.stringify({
-          Recipient: CONFIG.recipientName,
-          Birthday_Wish: userWish,
-          Timestamp: new Date().toLocaleString()
+          Penerima: CONFIG.recipientName,
+          Harapan_Ulang_Tahun: userWish,
+          Waktu: new Date().toLocaleString()
         })
       }).then(() => {
         wishStatus.textContent = "Harapan telah tersimpan abadi ✨";
@@ -244,10 +245,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btnToLetter.classList.remove('hidden');
 
     confetti({
-      particleCount: 160,
+      particleCount: 170,
       spread: 100,
       origin: { y: 0.6 },
-      colors: ['#d4af37', '#a4161a', '#ffffff', '#e0a96d']
+      colors: ['#d4af37', '#a4161a', '#ffffff', '#ffd700']
     });
   });
 

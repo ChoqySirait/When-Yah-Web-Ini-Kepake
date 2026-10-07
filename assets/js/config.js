@@ -1,45 +1,50 @@
 // ============================================================
-// KONFIGURASI KONTEN (DARK ROMANCE, POETRY & EMAIL TARGET)
+// PUSAT KONFIGURASI TEMPLATE & EMAIL PENAMPUNG HARAPAN
 // ============================================================
 const CONFIG = {
   recipientName: "Bidadari Malam",
   senderName: "Seseorang yang Selalu Mengagumimu",
 
-  // Masukkan email pribadimu di sini agar isi harapan otomatis masuk ke inbox
-  receiverEmail: "contoh_email_kamu@gmail.com",
+  // Masukkan email Anda di sini agar isi harapan otomatis masuk ke inbox
+  receiverEmail: "email_anda_disini@gmail.com",
 
-  // Tanggal kelahiran yang benar (1 - 31)
+  // Tanggal kelahiran untuk kuis (angka 1 - 31)
   birthDate: 14,
 
-  // Audio latar
-  audioUrl: "https://cdn.pixabay.com/download/audio/2022/05/16/audio_db6591201e.mp3?filename=romantic-ambient-111427.mp3",
+  // Audio: Menggunakan file lokal jika ada, atau fallback URL romantis
+  audioUrl: "assets/audio/lagu.mp3",
+  fallbackAudioUrl: "https://cdn.pixabay.com/download/audio/2022/05/16/audio_db6591201e.mp3?filename=romantic-ambient-111427.mp3",
   audioTitle: "Until I Found You (Acoustic Ambient)",
 
-  // Galeri Memori 3D
+  // Galeri Memori 3D & Syair (Jalur foto lokal dengan fallback otomatis)
   memories: [
     {
-      image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=800&auto=format&fit=crop",
+      image: "assets/images/foto1.jpg",
+      fallbackImage: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=800&auto=format&fit=crop",
       title: "Tatapan Pertama",
       poem: "Ada jutaan bintang di angkasa, namun malam itu langit meredup; kalah benderang oleh sepasang matamu."
     },
     {
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+      image: "assets/images/foto2.jpg",
+      fallbackImage: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
       title: "Senyum Sunyi",
       poem: "Bahkan dalam bisu yang paling pekat, tawamu adalah satu-satunya melodi yang sanggup menenangkan duniaku."
     },
     {
-      image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=800&auto=format&fit=crop",
+      image: "assets/images/foto3.jpg",
+      fallbackImage: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=800&auto=format&fit=crop",
       title: "Langkah Waktu",
       poem: "Waktu boleh terus berputar liar, tapi bersamamu, setiap detiknya menjelma menjadi keabadian yang teduh."
     },
     {
-      image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=800&auto=format&fit=crop",
+      image: "assets/images/foto4.jpg",
+      fallbackImage: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=800&auto=format&fit=crop",
       title: "Doa di Balik Doa",
       poem: "Aku meminta kepada semesta agar senantiasa menjagamu, saat tanganku tak cukup panjang merengkuh resahmu."
     }
   ],
 
-  // Naskah Surat Mendalam
+  // Naskah Surat Terakhir
   letter: {
     salutation: "Untuk Jiwa yang Paling Menenangkan,",
     body: [

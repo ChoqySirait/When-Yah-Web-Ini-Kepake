@@ -1,9 +1,9 @@
 // ============================================================
 // MASTER 3D ENGINE
-// 1. KOTAK KADO 3D DENGAN PUSARAN ENERGI TERSERAP
-// 2. KARTU 3D KE KANAN & SYAIR MELAYANG DI KIRI
-// 3. PORTAL DIMENSI STARGATE
-// 4. KUE TINGKAT BELUDRU 3D
+// 1. ROYAL GIFT BOX DENGAN ENERGI TERSERAP SPIRAL
+// 2. 360 DERAJAT CAROUSEL (DIPUTAR BEBAS DENGAN JARI / MOUSE)
+// 3. ALTERNATING SPLIT: GENAP KE KANAN, GANJIL KE KIRI
+// 4. HAUTE PATISSERIE MULTI-TIER CAKE DENGAN ROSSETTES & MUTIARA
 // ============================================================
 const World3D = {
   canvas: document.getElementById('webgl-canvas'),
@@ -19,7 +19,7 @@ const World3D = {
   portalGroup: new THREE.Group(),
   cakeGroup: new THREE.Group(),
 
-  // Komponen Spesifik
+  // Komponen
   giftBoxLid: null,
   giftBoxBase: null,
   candleFlameMesh: null,
@@ -29,17 +29,18 @@ const World3D = {
   cardsMeshes: [],
 
   // Partikel Suction
-  suctionCount: 300,
+  suctionCount: 350,
   suctionPositions: null,
   suctionOriginalRadii: null,
 
-  // State
+  // State Pengendali
   activeStage: 'gift', // 'gift' | 'gallery' | 'portal' | 'cake' | 'letter'
   isAbsorbing: false,
   absorptionSpeed: 1.0,
   currentCardIndex: 0,
   targetGalleryAngle: 0,
   currentGalleryAngle: 0,
+  galleryAngularVelocity: 0,
   isSplitActive: false,
   isDragging: false,
   pointerDownPos: { x: 0, y: 0 },
@@ -61,33 +62,33 @@ const World3D = {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.4;
+    this.renderer.toneMappingExposure = 1.45;
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(0x050304, 0.04);
+    this.scene.fog = new THREE.FogExp2(0x050304, 0.035);
 
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-    this.camera.position.set(0, 0, 7.5);
+    this.camera.position.set(0, 0, 7.8);
 
-    // Pencahayaan Sinematik
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+    // Pencahayaan Mewah
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     this.scene.add(ambientLight);
 
-    const goldLight = new THREE.DirectionalLight(0xd4af37, 2.0);
-    goldLight.position.set(6, 8, 6);
-    this.scene.add(goldLight);
+    const goldKeyLight = new THREE.DirectionalLight(0xffe29a, 2.2);
+    goldKeyLight.position.set(6, 8, 6);
+    this.scene.add(goldKeyLight);
 
-    const wineRimLight = new THREE.DirectionalLight(0xa4161a, 2.4);
+    const wineRimLight = new THREE.DirectionalLight(0xa4161a, 2.5);
     wineRimLight.position.set(-6, -4, -4);
     this.scene.add(wineRimLight);
 
-    // Bangun Objek 3D
+    // Bangun Aset 3D
     this.buildEmbers();
     this.buildSuctionParticles();
     this.buildRoyalGiftBox();
-    this.buildCurvedGallery();
+    this.build360CardCarousel();
     this.buildCosmicPortal();
-    this.buildTieredCake();
+    this.buildHautePatisserieCake();
 
     this.scene.add(this.embersGroup);
     this.scene.add(this.suctionParticlesGroup);
@@ -96,7 +97,6 @@ const World3D = {
     this.scene.add(this.portalGroup);
     this.scene.add(this.cakeGroup);
 
-    // Default visibility
     this.galleryGroup.visible = false;
     this.portalGroup.visible = false;
     this.cakeGroup.visible = false;
@@ -105,9 +105,52 @@ const World3D = {
     this.animate();
   },
 
-  // 1. DEBU EMAS & CRIMSON LATAR
+  // Generator Kanvas Seni Fallback (Menjamin Kartu TIDAK PERNAH Hitam)
+  createProceduralCardTexture(title, index) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 700;
+    const ctx = canvas.getContext('2d');
+
+    // Gradien Mewah Midnight Wine & Obsidian
+    const grad = ctx.createLinearGradient(0, 0, 512, 700);
+    grad.addColorStop(0, '#3a0208');
+    grad.addColorStop(0.5, '#160408');
+    grad.addColorStop(1, '#080103');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 512, 700);
+
+    // Bingkai Garis Emas Halus
+    ctx.strokeStyle = '#d4af37';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(20, 20, 472, 660);
+
+    ctx.strokeStyle = 'rgba(212, 175, 55, 0.3)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(30, 30, 452, 640);
+
+    // Tipografi Emas
+    ctx.fillStyle = '#d4af37';
+    ctx.font = 'italic 32px Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('✦ Memori Indah ✦', 256, 300);
+
+    ctx.font = '24px "Courier New", monospace';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(title || `Momen #${index + 1}`, 256, 360);
+
+    ctx.font = 'italic 16px Georgia, serif';
+    ctx.fillStyle = '#aaaaaa';
+    ctx.fillText('Ketuk untuk membaca syair', 256, 420);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+    return texture;
+  },
+
+  // 1. PARTIKEL DEBU EMAS & MERAH MAWAR
   buildEmbers() {
-    const count = 500;
+    const count = 550;
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
@@ -130,7 +173,7 @@ const World3D = {
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     const material = new THREE.PointsMaterial({
-      size: 0.05,
+      size: 0.055,
       vertexColors: true,
       transparent: true,
       opacity: 0.85,
@@ -141,7 +184,7 @@ const World3D = {
     this.embersGroup.add(points);
   },
 
-  // 2. PARTIKEL ENERGI TERSERAP MASUK (CONVERGENT ENERGY SUCTION)
+  // 2. PARTIKEL ENERGI TERSERAP MASUK KE KADO
   buildSuctionParticles() {
     const geometry = new THREE.BufferGeometry();
     this.suctionPositions = new Float32Array(this.suctionCount * 3);
@@ -182,11 +225,10 @@ const World3D = {
     this.suctionParticlesGroup.add(points);
   },
 
-  // 3. KOTAK KADO KERAJAAN 3D (ROYAL BIRTHDAY GIFT BOX)
+  // 3. ROYAL BIRTHDAY GIFT BOX 3D
   buildRoyalGiftBox() {
     this.giftBoxGroup.position.set(0, 0, 0);
 
-    // Badan Kotak Kado (Crimson Velvet)
     const baseGeom = new THREE.BoxGeometry(1.8, 1.4, 1.8);
     const velvetMat = new THREE.MeshStandardMaterial({
       color: 0x5a040d,
@@ -199,7 +241,6 @@ const World3D = {
     this.giftBoxBase.position.y = -0.3;
     this.giftBoxGroup.add(this.giftBoxBase);
 
-    // Pita Emas Badan Melintang (X & Z)
     const goldRibbonMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.95, roughness: 0.15 });
     const ribbon1 = new THREE.Mesh(new THREE.BoxGeometry(1.82, 1.42, 0.28), goldRibbonMat);
     ribbon1.position.y = -0.3;
@@ -209,19 +250,16 @@ const World3D = {
     ribbon2.position.y = -0.3;
     this.giftBoxGroup.add(ribbon2);
 
-    // Tutup Kado (Lid)
     this.giftBoxLid = new THREE.Group();
     const lidGeom = new THREE.BoxGeometry(1.95, 0.4, 1.95);
     const lidMesh = new THREE.Mesh(lidGeom, velvetMat);
     this.giftBoxLid.add(lidMesh);
 
-    // Pita Silang di Tutup Kado
     const lidRibbon1 = new THREE.Mesh(new THREE.BoxGeometry(1.97, 0.42, 0.28), goldRibbonMat);
     const lidRibbon2 = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.42, 1.97), goldRibbonMat);
     this.giftBoxLid.add(lidRibbon1);
     this.giftBoxLid.add(lidRibbon2);
 
-    // Simpul Pita Emas 3D (Ribbon Bow)
     const bowGeom = new THREE.TorusGeometry(0.32, 0.08, 16, 32);
     const bowLeft = new THREE.Mesh(bowGeom, goldRibbonMat);
     bowLeft.rotation.z = Math.PI / 4;
@@ -236,7 +274,6 @@ const World3D = {
     this.giftBoxLid.position.y = 0.55;
     this.giftBoxGroup.add(this.giftBoxLid);
 
-    // Cincin Pendar Emas Mengitari Kado
     const ringGeom = new THREE.TorusGeometry(2.1, 0.025, 16, 100);
     const ring = new THREE.Mesh(ringGeom, goldRibbonMat);
     ring.rotation.x = Math.PI / 3;
@@ -244,49 +281,70 @@ const World3D = {
     this.giftBoxGroup.add(ring);
   },
 
-  // 4. GALERI 3D PANGGUNG MELENGKUNG (TEXTURE RECTIFIED & DOUBLE SIDED)
-  buildCurvedGallery() {
+  // 4. GALERI 360 DERAJAT BERPUTAR (PORTAL DI TENGAH & ANTI-LAYAR HITAM)
+  build360CardCarousel() {
     const textureLoader = new THREE.TextureLoader();
+    textureLoader.setCrossOrigin('anonymous');
     const count = CONFIG.memories.length;
-    const radius = 5.0;
+    const radius = 4.8;
 
     CONFIG.memories.forEach((item, index) => {
       const cardGroup = new THREE.Group();
 
-      // Bingkai Kaca Obsidian Tebal
+      // Bingkai Belakang Obsidian
       const slabGeom = new THREE.BoxGeometry(2.3, 3.1, 0.08);
       const slabMat = new THREE.MeshStandardMaterial({
         color: 0x14080d,
         metalness: 0.85,
         roughness: 0.2,
         emissive: 0x220509,
-        emissiveIntensity: 0.3,
+        emissiveIntensity: 0.25,
         side: THREE.DoubleSide
       });
       const slab = new THREE.Mesh(slabGeom, slabMat);
+      slab.userData.cardIndex = index;
       cardGroup.add(slab);
 
       // Permukaan Foto Memori
       const planeGeom = new THREE.PlaneGeometry(2.1, 2.8);
-      const texture = textureLoader.load(item.image);
-      texture.minFilter = THREE.LinearFilter;
-      texture.generateMipmaps = true;
-
+      const defaultTex = this.createProceduralCardTexture(item.title, index);
       const planeMat = new THREE.MeshBasicMaterial({
-        map: texture,
+        map: defaultTex,
         side: THREE.DoubleSide
       });
+
+      // Muat gambar dengan fallback berantai
+      const loadImg = (url, fallback) => {
+        textureLoader.load(
+          url,
+          (tex) => {
+            tex.minFilter = THREE.LinearFilter;
+            tex.generateMipmaps = true;
+            planeMat.map = tex;
+            planeMat.needsUpdate = true;
+          },
+          undefined,
+          () => {
+            if (fallback) {
+              loadImg(fallback, null);
+            }
+          }
+        );
+      };
+      loadImg(item.image, item.fallbackImage);
+
       const plane = new THREE.Mesh(planeGeom, planeMat);
       plane.position.z = 0.045;
+      plane.userData.cardIndex = index;
       cardGroup.add(plane);
 
       // Garis Batas Emas
       const borderGeom = new THREE.EdgesGeometry(slabGeom);
-      const borderMat = new THREE.LineBasicMaterial({ color: 0xd4af37, opacity: 0.6, transparent: true });
+      const borderMat = new THREE.LineBasicMaterial({ color: 0xd4af37, opacity: 0.65, transparent: true });
       const borderLines = new THREE.LineSegments(borderGeom, borderMat);
       cardGroup.add(borderLines);
 
-      // Tata Letak Melengkung Carousel
+      // Susunan Melingkar 360 Derajat
       const angle = (index / count) * Math.PI * 2;
       cardGroup.position.set(
         Math.sin(angle) * radius,
@@ -297,6 +355,7 @@ const World3D = {
 
       cardGroup.userData = {
         index: index,
+        cardIndex: index,
         data: item,
         originalPos: cardGroup.position.clone(),
         originalRot: cardGroup.rotation.clone()
@@ -306,109 +365,166 @@ const World3D = {
       this.galleryGroup.add(cardGroup);
     });
 
-    this.updateCardFocus();
+    this.galleryGroup.add(this.portalGroup);
   },
 
-  // 5. PORTAL KOSMIK 3D (VORTEX STARGATE)
+  // 5. STARGATE PORTAL 3D
   buildCosmicPortal() {
-    this.portalGroup.position.set(0, 0, 0);
+    this.portalGroup.position.set(0, 0, -4.8);
 
-    const outerRingGeom = new THREE.TorusGeometry(1.9, 0.06, 16, 100);
+    const outerRingGeom = new THREE.TorusGeometry(1.6, 0.05, 16, 100);
     const ringMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.95, roughness: 0.1 });
     const outerRing = new THREE.Mesh(outerRingGeom, ringMat);
     this.portalGroup.add(outerRing);
 
-    const innerRingGeom = new THREE.TorusGeometry(1.65, 0.04, 16, 100);
+    const innerRingGeom = new THREE.TorusGeometry(1.35, 0.035, 16, 100);
     const innerMat = new THREE.MeshStandardMaterial({ color: 0xa4161a, metalness: 0.9, roughness: 0.2 });
     const innerRing = new THREE.Mesh(innerRingGeom, innerMat);
     innerRing.name = "portalInnerRing";
     this.portalGroup.add(innerRing);
 
-    const vortexGeom = new THREE.CircleGeometry(1.6, 48);
+    const vortexGeom = new THREE.CircleGeometry(1.3, 48);
     const vortexMat = new THREE.MeshBasicMaterial({
-      color: 0x660708,
+      color: 0x800e13,
       wireframe: true,
       transparent: true,
-      opacity: 0.6
+      opacity: 0.65
     });
     this.portalVortexMesh = new THREE.Mesh(vortexGeom, vortexMat);
     this.portalGroup.add(this.portalVortexMesh);
 
-    this.portalLight = new THREE.PointLight(0xd4af37, 2.5, 8);
+    this.portalLight = new THREE.PointLight(0xd4af37, 2.5, 9);
     this.portalGroup.add(this.portalLight);
   },
 
-  // 6. KUE TINGKAT BELUDRU 3D
-  buildTieredCake() {
-    this.cakeGroup.position.set(0, -0.6, 0);
+  // 6. HAUTE PATISSERIE MULTI-TIER CAKE 3D
+  buildHautePatisserieCake() {
+    this.cakeGroup.position.set(0, -0.65, 0);
 
-    const trayGeom = new THREE.CylinderGeometry(2.5, 2.6, 0.12, 64);
-    const trayMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.95, roughness: 0.15 });
-    const tray = new THREE.Mesh(trayGeom, trayMat);
-    tray.position.y = -1.0;
-    this.cakeGroup.add(tray);
+    const platterBase = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.65, 2.75, 0.12, 64),
+      new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.95, roughness: 0.12 })
+    );
+    platterBase.position.y = -1.0;
+    this.cakeGroup.add(platterBase);
 
-    const tier1Geom = new THREE.CylinderGeometry(2.0, 2.0, 1.0, 64);
-    const velvetMat = new THREE.MeshStandardMaterial({ color: 0x3d050d, roughness: 0.7, metalness: 0.2 });
-    const tier1 = new THREE.Mesh(tier1Geom, velvetMat);
-    tier1.position.y = -0.45;
+    const platterRim = new THREE.Mesh(
+      new THREE.TorusGeometry(2.72, 0.05, 16, 64),
+      new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.98, roughness: 0.1 })
+    );
+    platterRim.rotation.x = Math.PI / 2;
+    platterRim.position.y = -0.94;
+    this.cakeGroup.add(platterRim);
+
+    // Tingkat Bawah (Beludru Merah)
+    const tier1 = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.1, 2.1, 1.1, 64),
+      new THREE.MeshStandardMaterial({
+        color: 0x48030b,
+        roughness: 0.65,
+        metalness: 0.2,
+        emissive: 0x220105,
+        emissiveIntensity: 0.2
+      })
+    );
+    tier1.position.y = -0.42;
     this.cakeGroup.add(tier1);
 
-    const ribbon1Geom = new THREE.TorusGeometry(2.02, 0.04, 16, 64);
-    const ribbonMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.9, roughness: 0.2 });
-    const ribbon1 = new THREE.Mesh(ribbon1Geom, ribbonMat);
+    // 36 Mutiara Emas Mengelilingi Tingkat Bawah
+    const pearlGeom = new THREE.SphereGeometry(0.065, 16, 16);
+    const pearlMat = new THREE.MeshStandardMaterial({ color: 0xffe066, metalness: 0.95, roughness: 0.15 });
+    for (let i = 0; i < 36; i++) {
+      const angle = (i / 36) * Math.PI * 2;
+      const pearl = new THREE.Mesh(pearlGeom, pearlMat);
+      pearl.position.set(Math.cos(angle) * 2.14, -0.92, Math.sin(angle) * 2.14);
+      this.cakeGroup.add(pearl);
+    }
+
+    const ribbon1 = new THREE.Mesh(
+      new THREE.TorusGeometry(2.12, 0.04, 16, 64),
+      new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.95, roughness: 0.15 })
+    );
     ribbon1.rotation.x = Math.PI / 2;
-    ribbon1.position.y = -0.92;
+    ribbon1.position.y = 0.12;
     this.cakeGroup.add(ribbon1);
 
-    const tier2Geom = new THREE.CylinderGeometry(1.3, 1.3, 0.9, 64);
-    const chocoMat = new THREE.MeshStandardMaterial({ color: 0x1a060a, roughness: 0.5, metalness: 0.3 });
-    const tier2 = new THREE.Mesh(tier2Geom, chocoMat);
-    tier2.position.y = 0.45;
+    // Tingkat Atas (Ganache Cokelat Belgia)
+    const tier2 = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.35, 1.35, 0.95, 64),
+      new THREE.MeshStandardMaterial({
+        color: 0x180509,
+        roughness: 0.25,
+        metalness: 0.4,
+        emissive: 0x100205,
+        emissiveIntensity: 0.25
+      })
+    );
+    tier2.position.y = 0.58;
     this.cakeGroup.add(tier2);
 
-    const candleGeom = new THREE.CylinderGeometry(0.06, 0.06, 0.7, 32);
-    const candleMat = new THREE.MeshStandardMaterial({ color: 0xfffcf2, roughness: 0.3 });
+    // 20 Buah Ceri Emas / Roset Krim di Tingkat Atas
+    const cherryGeom = new THREE.SphereGeometry(0.08, 16, 16);
+    const cherryMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.1 });
+    for (let i = 0; i < 20; i++) {
+      const angle = (i / 20) * Math.PI * 2;
+      const cherry = new THREE.Mesh(cherryGeom, cherryMat);
+      cherry.position.set(Math.cos(angle) * 1.36, 1.06, Math.sin(angle) * 1.36);
+      this.cakeGroup.add(cherry);
+    }
+
+    // Lilin Champange Fluted
+    const candleGeom = new THREE.CylinderGeometry(0.07, 0.07, 0.8, 32);
+    const candleMat = new THREE.MeshStandardMaterial({ color: 0xffeedd, metalness: 0.4, roughness: 0.2 });
     const candle = new THREE.Mesh(candleGeom, candleMat);
-    candle.position.y = 1.25;
+    candle.position.y = 1.45;
     this.cakeGroup.add(candle);
 
+    const wick = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.015, 0.015, 0.1, 16),
+      new THREE.MeshBasicMaterial({ color: 0x111111 })
+    );
+    wick.position.y = 1.88;
+    this.cakeGroup.add(wick);
+
     const flameGeom = new THREE.SphereGeometry(0.12, 16, 16);
-    flameGeom.scale(0.8, 1.8, 0.8);
+    flameGeom.scale(0.8, 2.0, 0.8);
     const flameMat = new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0.95 });
     this.candleFlameMesh = new THREE.Mesh(flameGeom, flameMat);
-    this.candleFlameMesh.position.y = 1.7;
+    this.candleFlameMesh.position.y = 2.02;
     this.candleFlameMesh.visible = false;
     this.cakeGroup.add(this.candleFlameMesh);
 
-    this.candleLight = new THREE.PointLight(0xffaa33, 0, 7);
-    this.candleLight.position.set(0, 1.75, 0);
+    this.candleLight = new THREE.PointLight(0xffb732, 0, 8);
+    this.candleLight.position.set(0, 2.05, 0);
     this.cakeGroup.add(this.candleLight);
   },
 
   // ==========================================================
-  // LOGIKA SPLIT 3D: KARTU KE KANAN & SYAIR DI KIRI
+  // SPLIT VIEW: GENAP KE KANAN, GANJIL KE KIRI
   // ==========================================================
   activateSplitView(cardIndex) {
     this.isSplitActive = true;
     this.currentCardIndex = cardIndex;
     const isMobile = window.innerWidth < 640;
 
+    const isEven = cardIndex % 2 === 0;
+    const targetX = isMobile ? 0 : (isEven ? 1.75 : -1.75);
+    const targetRotY = isMobile ? 0 : (isEven ? -0.32 : 0.32);
+
     this.cardsMeshes.forEach((card, idx) => {
       if (idx === cardIndex) {
-        // Pindahkan kartu ke sisi KANAN dengan kemiringan 3D anggun
         gsap.to(card.position, {
-          x: isMobile ? 0 : 1.75,
-          y: isMobile ? 1.2 : 0,
+          x: targetX,
+          y: isMobile ? 1.25 : 0,
           z: 2.2,
-          duration: 0.8,
+          duration: 0.85,
           ease: "power3.out"
         });
         gsap.to(card.rotation, {
           x: 0,
-          y: isMobile ? 0 : -0.32, // Menghadap sedikit ke kiri ke arah teks
+          y: targetRotY,
           z: 0,
-          duration: 0.8,
+          duration: 0.85,
           ease: "power3.out"
         });
         gsap.to(card.scale, { x: 1.05, y: 1.05, z: 1.05, duration: 0.5 });
@@ -418,7 +534,7 @@ const World3D = {
     });
 
     if (this.onCardFocusCallback) {
-      this.onCardFocusCallback(CONFIG.memories[cardIndex]);
+      this.onCardFocusCallback(CONFIG.memories[cardIndex], isEven);
     }
   },
 
@@ -440,51 +556,18 @@ const World3D = {
         duration: 0.8,
         ease: "power3.out"
       });
-    });
-
-    this.updateCardFocus();
-  },
-
-  // NAVIGASI KARTU
-  nextCard() {
-    if (this.isSplitActive) return;
-    this.currentCardIndex = (this.currentCardIndex + 1) % CONFIG.memories.length;
-    this.rotateToCurrentCard();
-  },
-
-  prevCard() {
-    if (this.isSplitActive) return;
-    this.currentCardIndex = (this.currentCardIndex - 1 + CONFIG.memories.length) % CONFIG.memories.length;
-    this.rotateToCurrentCard();
-  },
-
-  rotateToCurrentCard() {
-    const count = CONFIG.memories.length;
-    this.targetGalleryAngle = -(this.currentCardIndex / count) * Math.PI * 2;
-    this.updateCardFocus();
-  },
-
-  updateCardFocus() {
-    this.cardsMeshes.forEach((card, idx) => {
-      const isFocused = idx === this.currentCardIndex;
-      gsap.to(card.scale, {
-        x: isFocused ? 1.08 : 0.88,
-        y: isFocused ? 1.08 : 0.88,
-        z: isFocused ? 1.08 : 0.88,
-        duration: 0.4
-      });
+      gsap.to(card.scale, { x: 1.0, y: 1.0, z: 1.0, duration: 0.5 });
     });
   },
 
-  // TRANSISI KOTAK KADO PECAH DENGAN BURST CAHAYA
+  // PERBAIKAN KRUSIAL: activeStage DENGAN TEGAS DIUBAH KE 'gallery'
   burstGiftBox(onComplete) {
     this.isAbsorbing = false;
+    this.activeStage = 'gallery';
 
-    // Tutup kado terlempar ke atas
     gsap.to(this.giftBoxLid.position, { y: 6, z: -2, duration: 1.0, ease: "power2.in" });
     gsap.to(this.giftBoxLid.rotation, { x: 2, y: 3, duration: 1.0 });
 
-    // Badan kado membesar lalu lenyap
     gsap.to(this.giftBoxBase.scale, { x: 3, y: 3, z: 3, duration: 0.8, ease: "power2.in" });
     gsap.to(this.giftBoxGroup.position, { z: 4, duration: 1.0, ease: "power2.in", onComplete: () => {
       this.giftBoxGroup.visible = false;
@@ -495,31 +578,21 @@ const World3D = {
     }});
   },
 
-  // TRANSISI PORTAL
   transitionToPortal(onPortalPassed) {
     this.activeStage = 'portal';
     if (this.isSplitActive) this.deactivateSplitView();
 
-    gsap.to(this.galleryGroup.position, { y: -10, duration: 0.8, onComplete: () => {
-      this.galleryGroup.visible = false;
-    }});
-
-    this.portalGroup.visible = true;
-    gsap.from(this.portalGroup.scale, { x: 0.01, y: 0.01, z: 0.01, duration: 1.2, ease: "back.out(1.7)" });
-
-    setTimeout(() => {
-      gsap.to(this.camera.position, {
-        z: 0,
-        duration: 1.4,
-        ease: "power3.in",
-        onComplete: () => {
-          this.portalGroup.visible = false;
-          this.camera.position.set(0, 0, 7.5);
-          this.transitionToCake();
-          if (onPortalPassed) onPortalPassed();
-        }
-      });
-    }, 1400);
+    gsap.to(this.camera.position, {
+      z: -4.5,
+      duration: 1.6,
+      ease: "power3.in",
+      onComplete: () => {
+        this.galleryGroup.visible = false;
+        this.camera.position.set(0, 0, 7.8);
+        this.transitionToCake();
+        if (onPortalPassed) onPortalPassed();
+      }
+    });
   },
 
   transitionToCake() {
@@ -530,7 +603,7 @@ const World3D = {
 
   igniteCandle() {
     this.candleFlameMesh.visible = true;
-    gsap.to(this.candleLight, { intensity: 2.2, duration: 0.8 });
+    gsap.to(this.candleLight, { intensity: 2.4, duration: 0.8 });
     gsap.from(this.candleFlameMesh.scale, { x: 0, y: 0, z: 0, duration: 0.5, ease: "back.out(2)" });
   },
 
@@ -549,6 +622,7 @@ const World3D = {
     gsap.to(this.camera.position, { z: 8, duration: 2, ease: "power2.out" });
   },
 
+  // PENANGANAN INPUT DRAG & RAYCASTING LANGSUNG KE CANVAS
   setupEvents() {
     window.addEventListener('resize', () => {
       this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -562,6 +636,7 @@ const World3D = {
       const y = e.touches ? e.touches[0].clientY : e.clientY;
       this.pointerDownPos = { x, y };
       this.previousPointerPos = { x, y };
+      this.galleryAngularVelocity = 0;
     };
 
     const onPointerMove = (e) => {
@@ -571,7 +646,8 @@ const World3D = {
       const deltaX = x - this.previousPointerPos.x;
 
       if (this.activeStage === 'gallery') {
-        this.targetGalleryAngle += deltaX * 0.005;
+        this.galleryAngularVelocity = deltaX * 0.006;
+        this.targetGalleryAngle += this.galleryAngularVelocity;
       } else if (this.activeStage === 'cake') {
         this.cakeGroup.rotation.y += deltaX * 0.008;
       }
@@ -587,16 +663,17 @@ const World3D = {
       const y = (e.changedTouches ? e.changedTouches[0].clientY : e.clientY) || this.previousPointerPos.y;
 
       const dist = Math.hypot(x - this.pointerDownPos.x, y - this.pointerDownPos.y);
-      if (dist < 10 && this.activeStage === 'gallery' && !this.isSplitActive) {
+      if (dist < 12 && this.activeStage === 'gallery' && !this.isSplitActive) {
         this.handleRaycastPick(x, y);
       }
     };
 
-    window.addEventListener('mousedown', onPointerDown);
+    // Pasang listener langsung ke canvas untuk sensitivitas maksimal
+    this.canvas.addEventListener('mousedown', onPointerDown);
     window.addEventListener('mousemove', onPointerMove);
     window.addEventListener('mouseup', onPointerUp);
 
-    window.addEventListener('touchstart', onPointerDown, { passive: true });
+    this.canvas.addEventListener('touchstart', onPointerDown, { passive: true });
     window.addEventListener('touchmove', onPointerMove, { passive: true });
     window.addEventListener('touchend', onPointerUp, { passive: true });
   },
@@ -610,12 +687,9 @@ const World3D = {
     const intersects = this.raycaster.intersectObjects(this.cardsMeshes, true);
 
     if (intersects.length > 0) {
-      let root = intersects[0].object;
-      while (root.parent && root.userData.index === undefined) {
-        root = root.parent;
-      }
-      if (root.userData && root.userData.index !== undefined) {
-        this.activateSplitView(root.userData.index);
+      const hit = intersects.find(item => item.object.userData && item.object.userData.cardIndex !== undefined);
+      if (hit) {
+        this.activateSplitView(hit.object.userData.cardIndex);
       }
     }
   },
@@ -626,7 +700,7 @@ const World3D = {
 
     this.embersGroup.rotation.y = time * 0.02;
 
-    // Animasi Pusaran Partikel Terserap ke Kado
+    // Spiral Suction Energy Masuk ke Kado
     if (this.isAbsorbing && this.suctionPositions) {
       const positions = this.suctionParticlesGroup.children[0].geometry.attributes.position.array;
       const mat = this.suctionParticlesGroup.children[0].material;
@@ -637,14 +711,12 @@ const World3D = {
         let y = positions[i * 3 + 1];
         let z = positions[i * 3 + 2];
 
-        // Partikel tertarik ke pusat (0,0,0) dengan pusaran spiral
         const speed = 0.06 * this.absorptionSpeed;
-        x -= x * speed - z * 0.03;
+        x -= x * speed - z * 0.035;
         y -= y * speed;
-        z -= z * speed + x * 0.03;
+        z -= z * speed + x * 0.035;
 
-        // Reset bila sudah terlalu dekat dengan kado
-        if (Math.hypot(x, y, z) < 0.4) {
+        if (Math.hypot(x, y, z) < 0.35) {
           const r = this.suctionOriginalRadii[i];
           const theta = Math.random() * Math.PI * 2;
           const phi = Math.acos(Math.random() * 2 - 1);
@@ -660,36 +732,42 @@ const World3D = {
       this.suctionParticlesGroup.children[0].geometry.attributes.position.needsUpdate = true;
     }
 
-    // Animasi Kado Mengambang & Cincin Orbit
     if (this.activeStage === 'gift') {
       const orbit = this.giftBoxGroup.getObjectByName('giftOrbit');
       if (orbit) orbit.rotation.z += 0.015;
       this.giftBoxGroup.position.y = Math.sin(time * 2) * 0.06;
     }
 
-    // Galeri Carousel
-    if (this.activeStage === 'gallery' && !this.isSplitActive) {
-      this.currentGalleryAngle += (this.targetGalleryAngle - this.currentGalleryAngle) * 0.08;
-      this.galleryGroup.rotation.y = this.currentGalleryAngle;
+    // 360 Gallery Inersia & Floating Motion
+    if (this.activeStage === 'gallery') {
+      if (!this.isSplitActive) {
+        this.galleryAngularVelocity *= 0.92;
+        this.targetGalleryAngle += this.galleryAngularVelocity;
+        this.currentGalleryAngle += (this.targetGalleryAngle - this.currentGalleryAngle) * 0.08;
+        this.galleryGroup.rotation.y = this.currentGalleryAngle;
 
-      this.cardsMeshes.forEach((card, idx) => {
-        card.position.y = Math.sin(time * 2 + idx) * 0.06;
-      });
-    }
+        this.cardsMeshes.forEach((card, idx) => {
+          card.position.y = Math.sin(time * 2 + idx) * 0.06;
+        });
+      }
 
-    // Portal Stargate
-    if (this.activeStage === 'portal' || this.portalGroup.visible) {
       const innerRing = this.portalGroup.getObjectByName('portalInnerRing');
-      if (innerRing) innerRing.rotation.z += 0.04;
-      if (this.portalVortexMesh) this.portalVortexMesh.rotation.z -= 0.06;
+      if (innerRing) innerRing.rotation.z += 0.035;
+      if (this.portalVortexMesh) this.portalVortexMesh.rotation.z -= 0.05;
     }
 
-    // Kedipan Lilin
+    // Rotasi Santai Kue & Kedipan Api
+    if (this.activeStage === 'cake') {
+      if (!this.isDragging) {
+        this.cakeGroup.rotation.y += 0.003;
+      }
+    }
+
     if (this.candleFlameMesh && this.candleFlameMesh.visible) {
       const flicker = Math.sin(time * 15) * 0.08 + Math.cos(time * 25) * 0.05;
       this.candleFlameMesh.scale.x = 0.8 + flicker;
       this.candleFlameMesh.scale.z = 0.8 + flicker;
-      this.candleLight.intensity = 2.0 + flicker * 2;
+      this.candleLight.intensity = 2.4 + flicker * 2;
     }
 
     this.renderer.render(this.scene, this.camera);
