@@ -1,0 +1,102 @@
+/* ============================================================ */
+/* 1. TYPOGRAPHY & SMOOTH BASE                                   */
+/* Mengatur pergerakan scroll halus dan rendering font tajam     */
+/* ============================================================ */
+html {
+  scroll-behavior: smooth;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #0b090a;
+}
+
+/* Kustomisasi scrollbar agar tetap minimalis dan senada */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0b090a;
+}
+::-webkit-scrollbar-thumb {
+  background: #2b090c;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a4161a;
+}
+
+/* ============================================================ */
+/* 2. PERSPEKTIF 3D & EFEK GOYANGAN KARTU FOTO                  */
+/* Blok ini membuat kartu seolah mengambang pelan di ruang hampa */
+/* ============================================================ */
+.perspective-grid {
+  perspective: 1000px;
+}
+
+.floating-card {
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.5s ease;
+  animation: floatingDrift 6s ease-in-out infinite alternate;
+}
+
+/* Pola delay berselang agar tiap kartu tidak bergerak serempak */
+.floating-card:nth-child(even) {
+  animation-delay: -3s;
+}
+
+/* Animasi melayang tipis (subtle drift) */
+@keyframes floatingDrift {
+  0% {
+    transform: translateY(0px) rotate(-1deg);
+  }
+  100% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+/* Efek saat disentuh atau diarahkan kursor */
+.floating-card:hover {
+  transform: translateY(-10px) rotate(0deg) scale(1.02);
+  box-shadow: 0 16px 32px -8px rgba(164, 22, 26, 0.35);
+}
+
+/* ============================================================ */
+/* 3. API LILIN & EFEK CAHAYA PENDAR                            */
+/* Blok ini merekayasa animasi api lilin agar berkedip organik  */
+/* ============================================================ */
+.flame {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 24px;
+  background: radial-gradient(ellipse at bottom, #fff3b0 0%, #e0a96d 50%, rgba(164, 22, 26, 0.2) 90%);
+  border-radius: 50% 50% 20% 20%;
+  box-shadow: 0 0 18px 4px rgba(212, 175, 55, 0.6), 0 0 35px 8px rgba(164, 22, 26, 0.4);
+  animation: flicker 0.7s infinite alternate ease-in-out;
+}
+
+@keyframes flicker {
+  0% {
+    transform: translateX(-50%) scale(1) rotate(-1.5deg);
+  }
+  100% {
+    transform: translateX(-50%) scale(1.06) rotate(1.5deg);
+  }
+}
+
+/* ============================================================ */
+/* 4. ANIMASI PIRINGAN HITAM & TEKS KETIK                       */
+/* Blok ini memutar ikon piringan audio di pojok layar          */
+/* ============================================================ */
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vinyl-disc {
+  animation: spinSlow 10s linear infinite;
+}
