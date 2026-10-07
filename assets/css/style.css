@@ -11,7 +11,6 @@ html, body {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* Custom Scrollbar Emas Halus Khusus Panel Surat */
 #ui-letter-panel::-webkit-scrollbar {
   width: 5px;
 }

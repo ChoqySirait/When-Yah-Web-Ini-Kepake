@@ -8,12 +8,12 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Fonts Editorial Luxury -->
+  <!-- Luxury Editorial Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <!-- Core Engines (Three.js, GSAP, Canvas Confetti) -->
+  <!-- Core 3D & Animation Engines -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -22,16 +22,16 @@
 </head>
 <body class="bg-[#050304] text-[#f5f3f4] min-h-screen overflow-hidden select-none">
 
-  <!-- 3D WEBGL FULLSCREEN CANVAS -->
+  <!-- 3D FULLSCREEN WEBGL CANVAS -->
   <canvas id="webgl-canvas" class="fixed inset-0 w-full h-full z-0 block"></canvas>
 
-  <!-- FLOATING AUDIO CONTROLLER -->
+  <!-- FLOATING MUSIC PLAYER -->
   <div id="audio-pill" class="fixed top-5 right-5 z-40 hidden items-center gap-3 bg-[#12080c]/85 backdrop-blur-md px-4 py-2 rounded-full border border-[#d4af37]/40 shadow-2xl">
     <div class="vinyl-disc w-5 h-5 rounded-full border border-[#d4af37] flex items-center justify-center">
       <div class="w-1.5 h-1.5 bg-[#d4af37] rounded-full"></div>
     </div>
     <span class="text-[11px] tracking-wider text-[#d4af37] font-medium" id="audio-title">Playing Track</span>
-    <button id="toggle-audio" class="text-xs text-gray-300 hover:text-white">⏸</button>
+    <button id="toggle-audio" class="text-xs text-gray-300 hover:text-white cursor-pointer">⏸</button>
   </div>
   <audio id="bg-audio" loop preload="auto"></audio>
 
@@ -41,15 +41,13 @@
     <!-- HEADER / CHAPTER TRACKER -->
     <header class="text-center pt-2">
       <p id="chapter-tag" class="text-[10px] tracking-[0.45em] uppercase text-[#d4af37] font-mono opacity-80 mb-1">Prolog</p>
-      <h1 id="chapter-title" class="font-serif text-2xl sm:text-4xl text-white font-light tracking-wide">A Midnight Secret</h1>
+      <h1 id="chapter-title" class="font-serif text-2xl sm:text-4xl text-white font-light tracking-wide">The Gift of Midnight</h1>
     </header>
 
-    <!-- CENTER INTERACTIVE WRAPPER -->
-    <div class="w-full max-w-4xl flex flex-col items-center justify-center text-center my-auto">
+    <!-- CENTER AREA -->
+    <div class="w-full max-w-5xl flex flex-col items-center justify-center text-center my-auto">
 
-      <!-- ======================================================== -->
-      <!-- BABAK 0: LINGKARAN TEKAN DENGAN TEKS SUSPENSE DINAMIS    -->
-      <!-- ======================================================== -->
+      <!-- BABAK 0: LINGKARAN TAHAN DENGAN PUSARAN ENERGI -->
       <div id="ui-seal" class="pointer-events-auto flex flex-col items-center transition-all duration-700">
         <div class="relative flex items-center justify-center">
           <svg class="w-36 h-36 transform -rotate-90">
@@ -61,47 +59,39 @@
             <span class="text-[10px] text-gray-400 font-mono mt-0.5" id="seal-percent">0%</span>
           </button>
         </div>
-        <!-- Teks Panik & Semangat Berubah Tiap Detik -->
-        <p id="seal-tease" class="text-xs text-[#d4af37] italic mt-6 h-6 tracking-wide transition-opacity duration-200">Sentuh dan tahan permata untuk membuka rahasia...</p>
+        <p id="seal-tease" class="text-xs text-[#d4af37] italic mt-6 h-6 tracking-wide transition-opacity duration-200">Sentuh dan tahan untuk menyerap energi ke dalam kado...</p>
       </div>
 
-      <!-- ======================================================== -->
-      <!-- BABAK 1: KONTROL GALERI 3D & TOMBOL MASUK PORTAL         -->
-      <!-- ======================================================== -->
-      <div id="ui-gallery-controls" class="hidden pointer-events-auto flex-col items-center gap-4 transition-all duration-700 w-full">
-        <!-- Hint Mode Normal -->
+      <!-- BABAK 1: GALERI 3D & FLOATING POETRY KIRI -->
+      <div id="ui-gallery-controls" class="hidden pointer-events-auto flex-col items-center w-full transition-all duration-700">
+        <!-- Panduan Awal Sebelum Kartu Disentuh -->
         <div id="gallery-normal-hint" class="flex flex-col items-center gap-3">
           <p class="text-xs text-gray-300 font-light max-w-sm">
-            Geser kartu atau gunakan tombol di bawah untuk melihat kenangan. Ketuk kartu untuk membaca puisinya:
+            Sentuh salah satu kartu foto untuk membuka syair rahasia:
           </p>
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-4">
             <button id="btn-prev-card" class="w-10 h-10 rounded-full bg-[#160a0f]/80 border border-white/20 text-white hover:border-[#d4af37] hover:text-[#d4af37] transition-all flex items-center justify-center text-base cursor-pointer">‹</button>
-            <button id="btn-open-card" class="px-6 py-2.5 rounded-full bg-[#800e13]/85 hover:bg-[#a4161a] border border-[#d4af37]/60 text-white font-serif text-xs uppercase tracking-widest shadow-lg shadow-[#800e13]/30 transition-all cursor-pointer">
-              Buka Syair Kartu Ini ✦
-            </button>
+            <span class="text-xs text-gray-500 font-mono tracking-widest uppercase">Geser Memori</span>
             <button id="btn-next-card" class="w-10 h-10 rounded-full bg-[#160a0f]/80 border border-white/20 text-white hover:border-[#d4af37] hover:text-[#d4af37] transition-all flex items-center justify-center text-base cursor-pointer">›</button>
           </div>
-          <button id="btn-activate-portal" class="mt-4 px-7 py-2 rounded-full border border-[#d4af37]/70 text-[#d4af37] hover:bg-[#d4af37] hover:text-black font-mono text-[11px] uppercase tracking-widest transition-all cursor-pointer">
+          <button id="btn-activate-portal" class="mt-6 px-7 py-2.5 rounded-full border border-[#d4af37]/70 text-[#d4af37] hover:bg-[#d4af37] hover:text-black font-mono text-[11px] uppercase tracking-widest transition-all cursor-pointer">
             Buka Portal Dimensi Lilin ✦
           </button>
         </div>
 
-        <!-- SPLIT PANEL KANAN SAAT KARTU 3D DI KIRI (FOKUS KARTU) -->
-        <div id="gallery-split-panel" class="hidden w-full max-w-md sm:ml-auto bg-[#14060c]/90 backdrop-blur-xl border border-[#a4161a] rounded-2xl p-6 shadow-2xl flex-col text-left transition-all duration-500">
-          <span id="split-poem-title" class="text-[10px] tracking-[0.3em] uppercase text-[#d4af37] font-mono block mb-2">Memory</span>
-          <p id="split-poem-text" class="font-['Cormorant_Garamond'] italic text-base sm:text-lg text-gray-200 min-h-[85px] leading-relaxed"></p>
-          <div class="mt-4 pt-3 border-t border-white/10 flex justify-between items-center">
-            <span class="text-[10px] text-gray-500 font-mono">Babak I • Kenangan</span>
-            <button id="btn-close-split" class="px-4 py-1.5 rounded-full border border-white/20 text-xs text-gray-300 hover:text-white hover:border-[#d4af37] transition-all cursor-pointer">
-              Tutup & Kembali ✕
+        <!-- SYAIR MELAYANG DI KIRI (ETHEREAL FLOATING POETRY) -->
+        <div id="gallery-split-panel" class="hidden w-full max-w-md sm:mr-auto flex-col text-left transition-all duration-500 p-4">
+          <span id="split-poem-title" class="text-[11px] tracking-[0.35em] uppercase text-[#d4af37] font-mono block mb-3 drop-shadow">Memory</span>
+          <p id="split-poem-text" class="font-['Cormorant_Garamond'] italic text-xl sm:text-2xl text-white min-h-[110px] leading-relaxed drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)]"></p>
+          <div class="mt-6 flex items-center gap-4">
+            <button id="btn-close-split" class="px-5 py-2 rounded-full border border-[#d4af37]/40 bg-black/40 backdrop-blur-md text-xs text-[#d4af37] hover:bg-[#d4af37] hover:text-black transition-all cursor-pointer">
+              Kembali ke Galeri ✕
             </button>
           </div>
         </div>
       </div>
 
-      <!-- ======================================================== -->
-      <!-- BABAK 2: KUIS TANGGAL & INTERAKSI KUE 3D                 -->
-      <!-- ======================================================== -->
+      <!-- BABAK 2: KUIS TANGGAL & FORM DOA EMAIL -->
       <div id="ui-cake-panel" class="hidden pointer-events-auto flex-col items-center w-full max-w-sm transition-all duration-700">
         <div id="cake-gate" class="bg-[#12080d]/90 backdrop-blur-md border border-white/10 p-6 rounded-2xl w-full shadow-2xl">
           <p class="text-xs text-gray-300 mb-4 font-light leading-relaxed">
@@ -115,11 +105,12 @@
         </div>
 
         <div id="cake-wish-box" class="hidden bg-[#12080d]/90 backdrop-blur-md border border-[#d4af37]/30 p-6 rounded-2xl w-full shadow-2xl">
-          <p class="text-xs text-[#d4af37] italic mb-3">Api lilin telah menyala. Putar kuenya, tulis harapanmu, lalu tiup:</p>
-          <textarea id="wish-input" rows="2" placeholder="Tuliskan harapan terindahmu..." class="w-full p-3 bg-black/60 border border-gray-700 rounded-xl text-xs text-gray-200 outline-none focus:border-[#d4af37] mb-3"></textarea>
+          <p class="text-xs text-[#d4af37] italic mb-3">Api lilin telah menyala. Tuliskan harapanmu (harapan ini akan terkirim rahasia), lalu tiup lilinnya:</p>
+          <textarea id="wish-input" rows="3" placeholder="Tuliskan harapan terindahmu di sini..." class="w-full p-3 bg-black/60 border border-gray-700 rounded-xl text-xs text-gray-200 outline-none focus:border-[#d4af37] mb-3"></textarea>
           <button id="btn-blow-candle" class="w-full py-2.5 rounded-full bg-gradient-to-r from-[#d4af37] to-[#aa841c] text-black font-semibold text-xs tracking-widest uppercase hover:scale-[1.02] active:scale-95 transition-all cursor-pointer">
             Tiup Lilin ✦
           </button>
+          <p id="wish-status" class="text-[10px] text-gray-400 mt-2 h-4 italic"></p>
         </div>
 
         <button id="btn-to-letter" class="hidden mt-6 px-7 py-2.5 rounded-full border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black font-serif text-xs uppercase tracking-widest transition-all duration-300 cursor-pointer">
@@ -127,9 +118,7 @@
         </button>
       </div>
 
-      <!-- ======================================================== -->
-      <!-- BABAK 3: SURAT CINTA UTAMA                               -->
-      <!-- ======================================================== -->
+      <!-- BABAK 3: SURAT CINTA UTAMA -->
       <div id="ui-letter-panel" class="hidden pointer-events-auto w-full max-w-lg bg-[#14060c]/95 backdrop-blur-2xl border border-[#d4af37]/40 rounded-2xl p-6 sm:p-10 shadow-2xl transition-all duration-1000 max-h-[75vh] overflow-y-auto flex-col text-left">
         <h3 id="letter-salutation" class="font-['Great_Vibes'] text-3xl sm:text-4xl text-[#d4af37] mb-6"></h3>
         <div id="letter-body" class="font-['Cormorant_Garamond'] text-base sm:text-lg text-gray-200 leading-relaxed space-y-4 font-light text-justify"></div>

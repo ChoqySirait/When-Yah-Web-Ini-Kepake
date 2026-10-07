@@ -1,9 +1,12 @@
 // ============================================================
-// KONFIGURASI KONTEN (DARK ROMANCE & DEEP POETRY)
+// KONFIGURASI KONTEN (DARK ROMANCE, POETRY & EMAIL TARGET)
 // ============================================================
 const CONFIG = {
   recipientName: "Bidadari Malam",
   senderName: "Seseorang yang Selalu Mengagumimu",
+
+  // Masukkan email pribadimu di sini agar isi harapan otomatis masuk ke inbox
+  receiverEmail: "contoh_email_kamu@gmail.com",
 
   // Tanggal kelahiran yang benar (1 - 31)
   birthDate: 14,
@@ -12,7 +15,7 @@ const CONFIG = {
   audioUrl: "https://cdn.pixabay.com/download/audio/2022/05/16/audio_db6591201e.mp3?filename=romantic-ambient-111427.mp3",
   audioTitle: "Until I Found You (Acoustic Ambient)",
 
-  // Galeri Memori 3D (Oblique Cascading Cards)
+  // Galeri Memori 3D
   memories: [
     {
       image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=800&auto=format&fit=crop",
