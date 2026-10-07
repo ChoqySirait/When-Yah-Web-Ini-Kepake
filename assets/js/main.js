@@ -1,15 +1,13 @@
 // ============================================================
-// APP ORCHESTRATOR (MENJEMBATANI UI HUD & 3D WORLD)
+// APP ORCHESTRATOR
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
   AudioManager.init();
 
-  // Inisialisasi Engine 3D dengan callback klik kartu galeri
   World3D.init((memoryData) => {
     openPoemModal(memoryData);
   });
 
-  // Elemen DOM
   const chapterTag = document.getElementById('chapter-tag');
   const chapterTitle = document.getElementById('chapter-title');
 
@@ -34,13 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnToLetter = document.getElementById('btn-to-letter');
 
   const poemOverlay = document.getElementById('poem-overlay');
+  const poemModalBox = document.getElementById('poem-modal-box');
   const poemTitle = document.getElementById('poem-card-title');
   const poemTypewriter = document.getElementById('poem-typewriter');
   const btnClosePoem = document.getElementById('btn-close-poem');
 
-  // ==========================================================
-  // BABAK 0: INTERAKSI TAHAN SEGEL 7 DETIK DENGAN EFEK PANIK
-  // ==========================================================
+  // BABAK 0: TAHAN TOMBOL
   const totalDuration = 7000;
   const circumference = 402;
   let holdStartTime = null;
@@ -50,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const teaseMessages = [
     "Duarr! Eh belum... jangan dilepas dulu!",
     "Duarr! Dikit lagi padahal... tahan terus layarnya!",
-    "Duarr! Kok dilepas? Coba ulangi dari nol ya!",
+    "Duarr! Kok dilepas? Coba ulangi dari awal ya!",
     "Duarr! Kurang sabar nih, coba tahan lebih lama!"
   ];
 
@@ -71,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const offset = circumference - (progress * circumference);
       sealProgress.style.strokeDashoffset = offset;
 
-      // Efek getar layar bertahap
       if (percent >= 70) {
         document.body.classList.remove('rumble-subtle');
         document.body.classList.add('rumble-intense');
@@ -81,9 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
         sealLabel.textContent = "JANGAN LEPAS";
       }
 
-      // Mempercepat putaran kristal di 3D Engine
-      const core = World3D.crystalGroup.getObjectByName('obsidianCore');
-      if (core) core.rotation.y += 0.08;
+      const gem = World3D.crystalGroup.getObjectByName('rubyGem');
+      if (gem) gem.rotation.y += 0.08;
 
       if (progress >= 1) {
         finishHold();
@@ -100,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sealTrigger.classList.remove('holding-seal');
     sealProgress.style.strokeDashoffset = circumference;
     sealPercent.textContent = "0%";
-    sealLabel.textContent = "Tahan";
+    sealLabel.textContent = "TEKAN";
 
     const randomTease = teaseMessages[Math.floor(Math.random() * teaseMessages.length)];
     sealTease.textContent = randomTease;
@@ -111,8 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
     clearInterval(holdInterval);
     document.body.classList.remove('rumble-subtle', 'rumble-intense');
 
-    sealLabel.textContent = "PECAH";
-    sealTease.textContent = "Segel berhasil dibuka...";
+    sealLabel.textContent = "TERBUKA";
+    sealTease.textContent = "Rahasia telah dibuka...";
 
     AudioManager.play();
     World3D.transitionToGallery();
@@ -131,11 +126,11 @@ document.addEventListener('DOMContentLoaded', () => {
   sealTrigger.addEventListener('touchstart', startHold, { passive: false });
   window.addEventListener('touchend', cancelHold);
 
-  // ==========================================================
-  // BABAK 1: SYAIR MODAL TYPEWRITER
-  // ==========================================================
+  // BABAK 1: SYAIR MODAL TYPEWRITER & CLOSE HANDLER
   let typeInterval = null;
+
   function openPoemModal(data) {
+    World3D.isModalOpen = true;
     poemTitle.textContent = data.title;
     poemOverlay.classList.remove('hidden');
     poemOverlay.classList.add('flex');
@@ -153,16 +148,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 45);
   }
 
-  btnClosePoem.addEventListener('click', () => {
+  function closePoemModal() {
     poemOverlay.classList.add('hidden');
     poemOverlay.classList.remove('flex');
     clearInterval(typeInterval);
     poemTypewriter.textContent = '';
+    setTimeout(() => {
+      World3D.isModalOpen = false;
+    }, 150);
+  }
+
+  // Klik tombol 'X'
+  btnClosePoem.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closePoemModal();
   });
 
-  // ==========================================================
-  // PINDAH DARI GALERI KE BABAK KUE
-  // ==========================================================
+  // Klik backdrop luar modal
+  poemOverlay.addEventListener('click', (e) => {
+    if (e.target === poemOverlay) {
+      closePoemModal();
+    }
+  });
+
+  // Cegah klik di dalam box modal menutup modal
+  poemModalBox.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  // TRANSISI DARI GALERI KE KUE
   btnToCake.addEventListener('click', () => {
     uiGalleryHint.classList.add('hidden');
     uiCakePanel.classList.remove('hidden');
@@ -172,9 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
     World3D.transitionToCake();
   });
 
-  // ==========================================================
-  // BABAK 2: KUIS TANGGAL & TIUP LILIN
-  // ==========================================================
+  // BABAK 2: KUIS TANGGAL & LILIN
   btnVerifyDate.addEventListener('click', () => {
     const val = parseInt(inputDate.value.trim());
     if (val === CONFIG.birthDate) {
@@ -192,7 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
     cakeWishBox.style.display = 'none';
     btnToLetter.classList.remove('hidden');
 
-    // Ledakan Confetti Mewah Emas & Crimson
     confetti({
       particleCount: 160,
       spread: 100,
@@ -201,9 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ==========================================================
-  // BABAK 3: SURAT CINTA MENDALAM
-  // ==========================================================
+  // BABAK 3: SURAT CINTA
   btnToLetter.addEventListener('click', () => {
     uiCakePanel.classList.add('hidden');
     uiLetterPanel.classList.remove('hidden');
@@ -213,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     World3D.transitionToLetter();
 
-    // Render isi surat
     document.getElementById('letter-salutation').textContent = CONFIG.letter.salutation;
     const bodyEl = document.getElementById('letter-body');
     bodyEl.innerHTML = '';

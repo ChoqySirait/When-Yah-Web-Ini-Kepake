@@ -10,10 +10,10 @@
 
   <!-- Google Fonts: Editorial Luxury Dark Romance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <!-- Core 3D & Animation Engines (Three.js & GSAP) -->
+  <!-- Core 3D & Animation Engines -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -22,15 +22,11 @@
 </head>
 <body class="bg-[#070506] text-[#f5f3f4] min-h-screen overflow-hidden select-none">
 
-  <!-- ======================================================= -->
-  <!-- 3D WEBGL CANVAS LAYER (FULLSCREEN BACKGROUND & SCENE)  -->
-  <!-- ======================================================= -->
+  <!-- 3D WEBGL CANVAS LAYER -->
   <canvas id="webgl-canvas" class="fixed inset-0 w-full h-full z-0 block"></canvas>
 
-  <!-- ======================================================= -->
-  <!-- FLOATING AUDIO CONTROLLER                               -->
-  <!-- ======================================================= -->
-  <div id="audio-pill" class="fixed top-5 right-5 z-50 hidden items-center gap-3 bg-[#120d0f]/80 backdrop-blur-md px-4 py-2 rounded-full border border-[#d4af37]/30 shadow-2xl">
+  <!-- FLOATING AUDIO CONTROLLER -->
+  <div id="audio-pill" class="fixed top-5 right-5 z-40 hidden items-center gap-3 bg-[#120d0f]/80 backdrop-blur-md px-4 py-2 rounded-full border border-[#d4af37]/30 shadow-2xl">
     <div class="vinyl-disc w-5 h-5 rounded-full border border-[#d4af37] flex items-center justify-center">
       <div class="w-1.5 h-1.5 bg-[#d4af37] rounded-full"></div>
     </div>
@@ -39,32 +35,27 @@
   </div>
   <audio id="bg-audio" loop preload="auto"></audio>
 
-  <!-- ======================================================= -->
-  <!-- HUD INTERACTIVE OVERLAY                                 -->
-  <!-- ======================================================= -->
+  <!-- HUD INTERACTIVE OVERLAY -->
   <main id="ui-container" class="relative z-10 w-full h-screen pointer-events-none flex flex-col items-center justify-between p-6 sm:p-10">
 
     <!-- HEADER / CHAPTER TRACKER -->
     <header class="text-center pt-2">
       <p id="chapter-tag" class="text-[10px] tracking-[0.45em] uppercase text-[#d4af37] font-mono opacity-80 mb-1">Prolog</p>
-      <h1 id="chapter-title" class="font-serif text-xl sm:text-3xl text-white font-light tracking-wide transition-all duration-700">The Obsidian Seal</h1>
+      <h1 id="chapter-title" class="font-serif text-xl sm:text-3xl text-white font-light tracking-wide transition-all duration-700">A Midnight Secret</h1>
     </header>
 
-    <!-- CENTER DYNAMIC CONTENT AREA -->
+    <!-- CENTER INTERACTIVE WRAPPER -->
     <div class="w-full max-w-xl flex flex-col items-center justify-center text-center">
 
-      <!-- PROLOGUE: INSTRUCTION & 7-SECOND HOLD TRIGGER -->
+      <!-- PROLOGUE: MINIMALIST TRIGGER -->
       <div id="ui-seal" class="pointer-events-auto flex flex-col items-center transition-all duration-700">
-        <p class="text-xs sm:text-sm text-gray-400 font-light max-w-xs mb-8 leading-relaxed">
-          Sentuh dan tahan prisma hitam di tengah selama 7 detik untuk memecahkan segel malam ini.
-        </p>
         <div class="relative flex items-center justify-center">
           <svg class="w-36 h-36 transform -rotate-90">
-            <circle cx="72" cy="72" r="64" stroke="#1f1418" stroke-width="3" fill="transparent" />
+            <circle cx="72" cy="72" r="64" stroke="#2a0d13" stroke-width="3" fill="transparent" />
             <circle id="seal-progress" cx="72" cy="72" r="64" stroke="#d4af37" stroke-width="3" fill="transparent" stroke-dasharray="402" stroke-dashoffset="402" class="transition-all duration-75" />
           </svg>
-          <button id="seal-hold-btn" class="absolute w-24 h-24 rounded-full bg-[#120d0f]/90 border border-[#a4161a]/60 shadow-lg flex flex-col items-center justify-center active:scale-95 transition-transform duration-150">
-            <span class="text-[11px] font-mono tracking-widest text-[#d4af37] uppercase" id="seal-label">Tahan</span>
+          <button id="seal-hold-btn" class="absolute w-24 h-24 rounded-full bg-[#180a0e]/90 border border-[#a4161a] shadow-xl shadow-[#800e13]/40 flex flex-col items-center justify-center active:scale-95 transition-transform duration-150 cursor-pointer">
+            <span class="text-xs font-mono tracking-widest text-[#d4af37] uppercase" id="seal-label">TEKAN</span>
             <span class="text-[10px] text-gray-400 font-mono mt-0.5" id="seal-percent">0%</span>
           </button>
         </div>
@@ -81,9 +72,8 @@
         </button>
       </div>
 
-      <!-- CHAPTER II: DATE GATEKEEPER & MAKE A WISH -->
+      <!-- CHAPTER II: DATE GATEKEEPER & WISH BOX -->
       <div id="ui-cake-panel" class="hidden pointer-events-auto flex-col items-center w-full max-w-sm transition-all duration-700">
-        <!-- Gatekeeper Input -->
         <div id="cake-gate" class="bg-[#120d0f]/85 backdrop-blur-md border border-white/10 p-6 rounded-2xl w-full shadow-2xl">
           <p class="text-xs text-gray-300 mb-4 font-light leading-relaxed">
             "Sekarang tanggal berapa ya? Coba buktikan kalau kamu mengingat hari istimewa ini..."
@@ -95,7 +85,6 @@
           <p id="cake-date-error" class="text-[11px] text-red-400 h-4 mt-1"></p>
         </div>
 
-        <!-- Wish Box -->
         <div id="cake-wish-box" class="hidden bg-[#120d0f]/85 backdrop-blur-md border border-[#d4af37]/30 p-6 rounded-2xl w-full shadow-2xl">
           <p class="text-xs text-[#d4af37] italic mb-3">Lilin telah menyala. Putar kuenya, pejamkan mata, tuliskan harapanmu, lalu tiup:</p>
           <textarea id="wish-input" rows="2" placeholder="Tuliskan harapan terindahmu..." class="w-full p-3 bg-black/60 border border-gray-700 rounded-xl text-xs text-gray-200 outline-none focus:border-[#d4af37] mb-3"></textarea>
@@ -109,7 +98,7 @@
         </button>
       </div>
 
-      <!-- CHAPTER III: LETTER MODAL / MONOLITH OVERLAY -->
+      <!-- CHAPTER III: LETTER PANEL -->
       <div id="ui-letter-panel" class="hidden pointer-events-auto w-full max-w-lg bg-[#120d0f]/90 backdrop-blur-xl border border-[#d4af37]/40 rounded-2xl p-6 sm:p-10 shadow-2xl transition-all duration-1000 max-h-[75vh] overflow-y-auto">
         <h3 id="letter-salutation" class="font-['Great_Vibes'] text-3xl sm:text-4xl text-[#d4af37] mb-6 text-left"></h3>
         <div id="letter-body" class="font-['Cormorant_Garamond'] text-base sm:text-lg text-gray-200 leading-relaxed space-y-4 text-justify font-light"></div>
@@ -121,21 +110,21 @@
 
     </div>
 
-    <!-- POEM POPUP OVERLAY (Triggered when tapping a 3D glass card) -->
-    <div id="poem-overlay" class="hidden pointer-events-auto fixed inset-0 z-40 bg-black/85 backdrop-blur-md flex items-center justify-center p-6">
-      <div class="max-w-md w-full bg-[#161013] border border-[#a4161a]/60 rounded-2xl p-6 sm:p-8 relative text-center shadow-2xl">
-        <button id="btn-close-poem" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg">✕</button>
-        <span id="poem-card-title" class="text-[10px] tracking-[0.3em] uppercase text-[#d4af37] font-mono block mb-3">Memory</span>
-        <p id="poem-typewriter" class="font-['Cormorant_Garamond'] italic text-lg sm:text-xl text-[#f5f3f4] min-h-[90px] leading-relaxed"></p>
-        <p class="text-[10px] text-gray-500 font-mono mt-4">Ketuk tanda silang untuk kembali ke galeri</p>
-      </div>
-    </div>
-
     <!-- FOOTER SIGNATURE -->
     <footer class="pb-2">
       <span class="text-[9px] tracking-[0.3em] uppercase text-gray-600 font-mono">Exclusive Digital Tribute</span>
     </footer>
   </main>
+
+  <!-- POEM POPUP OVERLAY (Ditempatkan di luar container agar z-index mutlak dan bebas bug tutup) -->
+  <div id="poem-overlay" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-6 cursor-pointer">
+    <div id="poem-modal-box" class="max-w-md w-full bg-[#180a0e] border border-[#a4161a] rounded-2xl p-6 sm:p-8 relative text-center shadow-2xl cursor-default">
+      <button id="btn-close-poem" type="button" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 text-gray-300 hover:text-white flex items-center justify-center text-sm transition-colors z-10 cursor-pointer">✕</button>
+      <span id="poem-card-title" class="text-[10px] tracking-[0.3em] uppercase text-[#d4af37] font-mono block mb-3">Memory</span>
+      <p id="poem-typewriter" class="font-['Cormorant_Garamond'] italic text-lg sm:text-xl text-[#f5f3f4] min-h-[90px] leading-relaxed"></p>
+      <p class="text-[10px] text-gray-500 font-mono mt-4">Sentuh tanda silang atau area luar untuk kembali</p>
+    </div>
+  </div>
 
   <!-- Module Scripts -->
   <script src="assets/js/config.js"></script>
